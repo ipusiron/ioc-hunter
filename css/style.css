@@ -44,6 +44,12 @@ button {
 .ioc.domain { background: #fff3bf; color: #856404; }
 .ioc.email { background: #f8d7da; color: #721c24; }
 .ioc.hash { background: #e8daef; color: #4a235a; }
+.ioc.url { background: #d4edda; color: #155724; }
+.ioc.filePath { background: #cce5ff; color: #004085; }
+.ioc.registryKey { background: #f5c6cb; color: #721c24; }
+.ioc.bitcoin { background: #fff3cd; color: #856404; }
+.ioc.cve { background: #d1ecf1; color: #0c5460; }
+.ioc.mitre { background: #d6d8db; color: #383d41; }
 
 #fileDropArea {
   border: 2px dashed #ccc;
@@ -197,6 +203,12 @@ body.dark-mode .ioc.ipv6 { background: #1b5e3f; color: #66bb6a; }
 body.dark-mode .ioc.domain { background: #5d4e37; color: #ffb74d; }
 body.dark-mode .ioc.email { background: #5d1f1f; color: #ef5350; }
 body.dark-mode .ioc.hash { background: #4a148c; color: #ba68c8; }
+body.dark-mode .ioc.url { background: #1b5e20; color: #81c784; }
+body.dark-mode .ioc.filePath { background: #1565c0; color: #64b5f6; }
+body.dark-mode .ioc.registryKey { background: #880e4f; color: #f48fb1; }
+body.dark-mode .ioc.bitcoin { background: #e65100; color: #ffb74d; }
+body.dark-mode .ioc.cve { background: #006064; color: #4dd0e1; }
+body.dark-mode .ioc.mitre { background: #424242; color: #bdbdbd; }
 
 /* フッター */
 .app-footer {

@@ -1,0 +1,47 @@
+===== Advanced IOC Test Sample =====
+Generated: 2024-01-15 10:30:45
+
+[URL Examples]
+Attack campaign detected from: https://malicious-domain.com/payload.exe
+Phishing attempt: https://fake-bank-site.net/login?user=victim
+C2 server: http://192.168.1.100:8080/beacon
+Data exfiltration to: https://file-sharing-site.io/stolen_data.zip
+
+[File Path Examples]
+Windows malware path: C:\Windows\System32\evil.exe
+Suspicious script: C:\Users\victim\AppData\Local\Temp\update.ps1
+Linux backdoor: /tmp/.hidden/backdoor.sh
+Mac persistence: /Users/admin/Library/LaunchAgents/com.malware.plist
+
+[Registry Key Examples]
+Persistence key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run\Malware
+Service installation: HKLM\System\CurrentControlSet\Services\EvilService
+Hijacked setting: HKEY_CURRENT_USER\Software\Classes\http\shell\open\command
+
+[Bitcoin Addresses]
+Ransomware payment: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+Another wallet: 3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy
+Segwit address: bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+
+[CVE Numbers]
+Log4Shell vulnerability: CVE-2021-44228
+ProxyLogon: CVE-2021-26855
+BlueKeep: CVE-2019-0708
+EternalBlue: CVE-2017-0144
+
+[MITRE ATT&CK Techniques]
+Initial Access: T1566.001
+Persistence: T1547.001
+Defense Evasion: T1055
+Credential Access: T1003.001
+Lateral Movement: T1021.002
+Collection: T1560
+Exfiltration: T1041
+Impact: T1486
+
+[Mixed IOCs with traditional types]
+Malicious IP: 192.168.1.100
+Domain: evil-c2-server.com
+Email: phishing@fake-company.com
+MD5 hash: 5d41402abc4b2a76b9719d911017c592
+SHA256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855

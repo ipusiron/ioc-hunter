@@ -10,7 +10,13 @@ export class ChartRenderer {
       ipv6: '#236e4a',
       domain: '#856404',
       email: '#721c24',
-      hash: '#4a235a'
+      hash: '#4a235a',
+      url: '#155724',
+      filePath: '#004085',
+      registryKey: '#721c24',
+      bitcoin: '#856404',
+      cve: '#0c5460',
+      mitre: '#383d41'
     };
     
     // ダークモード用の色
@@ -19,7 +25,13 @@ export class ChartRenderer {
       ipv6: '#66bb6a',
       domain: '#ffb74d',
       email: '#ef5350',
-      hash: '#ba68c8'
+      hash: '#ba68c8',
+      url: '#81c784',
+      filePath: '#64b5f6',
+      registryKey: '#f48fb1',
+      bitcoin: '#ffb74d',
+      cve: '#4dd0e1',
+      mitre: '#bdbdbd'
     };
   }
 
@@ -33,10 +45,10 @@ export class ChartRenderer {
 
     this.chartContainer.style.display = 'block';
     
-    // キャンバスのサイズを親要素に合わせる
+    // キャンバスのサイズを親要素に合わせる（IOCタイプが増えたので幅を広げる）
     const containerWidth = this.chartContainer.clientWidth;
-    this.canvas.width = Math.min(containerWidth - 20, 600);
-    this.canvas.height = 300;
+    this.canvas.width = Math.min(containerWidth - 20, 800);
+    this.canvas.height = 350;
     
     // キャンバスをクリア
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

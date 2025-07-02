@@ -10,6 +10,12 @@ export const CONFIG = {
     domain: /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi,
     email: /\b[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi,
     hash: /\b[a-fA-F0-9]{32}\b|\b[a-fA-F0-9]{40}\b|\b[a-fA-F0-9]{64}\b/g,
+    url: /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/g,
+    filePath: /(?:[A-Za-z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*)|(?:\/(?:[^\/\0]+\/)*[^\/\0]+)/g,
+    registryKey: /(?:HKEY_(?:CLASSES_ROOT|CURRENT_USER|LOCAL_MACHINE|USERS|CURRENT_CONFIG)|HKLM|HKCU|HKCR|HKU|HKCC)(?:\\[^\\<>:"|?*\r\n]+)*/g,
+    bitcoin: /\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})\b/g,
+    cve: /CVE-\d{4}-\d{4,}/g,
+    mitre: /T\d{4}(?:\.\d{3})?/g,
   },
   MESSAGES: {
     FILE_TOO_LARGE: '⚠ このファイルは20MBを超えているため読み込めません。',

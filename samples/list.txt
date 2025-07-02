@@ -3,3 +3,4 @@ auth.log:Linux auth.log
 mail.log:メールログ
 dns.log:DNSログ
 proxy.log:Proxyログ
+advanced_ioc.txt:高度なIOCサンプル（URL、ファイルパス、CVE等）
