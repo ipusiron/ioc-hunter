@@ -16,7 +16,12 @@ export class UIController {
       exportFormat: document.getElementById('exportFormat'),
       downloadButton: document.getElementById('downloadButton'),
       chartContainer: document.getElementById('chartContainer'),
-      iocChart: document.getElementById('iocChart')
+      iocChart: document.getElementById('iocChart'),
+      whitelistSection: document.getElementById('whitelistSection'),
+      whitelistInput: document.getElementById('whitelistInput'),
+      addWhitelistButton: document.getElementById('addWhitelistButton'),
+      enableWhitelist: document.getElementById('enableWhitelist'),
+      whitelistDisplay: document.getElementById('whitelistDisplay')
     };
   }
 
@@ -102,5 +107,61 @@ export class UIController {
 
   hideExportSection() {
     this.elements.exportSection.style.display = 'none';
+  }
+
+  bindAddWhitelistHandler(handler) {
+    this.elements.addWhitelistButton.addEventListener('click', handler);
+    this.elements.whitelistInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handler();
+    });
+  }
+
+  bindWhitelistToggleHandler(handler) {
+    this.elements.enableWhitelist.addEventListener('change', handler);
+  }
+
+  getWhitelistInput() {
+    return this.elements.whitelistInput.value;
+  }
+
+  clearWhitelistInput() {
+    this.elements.whitelistInput.value = '';
+  }
+
+  setWhitelistEnabled(enabled) {
+    this.elements.enableWhitelist.checked = enabled;
+  }
+
+  updateWhitelistDisplay(whitelist) {
+    const html = whitelist.length === 0 
+      ? '<p class="whitelist-empty">ホワイトリストは空です</p>'
+      : whitelist.map(ioc => `
+          <div class="whitelist-item">
+            <span>${this.escapeHtml(ioc)}</span>
+            <button class="remove-btn" data-ioc="${this.escapeHtml(ioc)}">×</button>
+          </div>
+        `).join('');
+    
+    this.elements.whitelistDisplay.innerHTML = html;
+
+    // 削除ボタンのイベントリスナー
+    this.elements.whitelistDisplay.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const ioc = e.target.dataset.ioc;
+        if (this.onRemoveWhitelistItem) {
+          this.onRemoveWhitelistItem(ioc);
+        }
+      });
+    });
+  }
+
+  setRemoveWhitelistHandler(handler) {
+    this.onRemoveWhitelistItem = handler;
+  }
+
+  escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 }

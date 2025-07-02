@@ -42,6 +42,24 @@
     ></textarea>
     <button id="analyzeButton">解析する</button>
 
+    <!-- ホワイトリストセクション -->
+    <div id="whitelistSection">
+      <h3>⚪ ホワイトリスト設定</h3>
+      <div class="whitelist-controls">
+        <div class="whitelist-input-group">
+          <input type="text" id="whitelistInput" placeholder="除外するIOCを入力（例: 192.168.1.1）">
+          <button id="addWhitelistButton">追加</button>
+        </div>
+        <div class="whitelist-toggle">
+          <label>
+            <input type="checkbox" id="enableWhitelist" checked>
+            ホワイトリストを有効にする
+          </label>
+        </div>
+      </div>
+      <div id="whitelistDisplay" class="whitelist-display"></div>
+    </div>
+
     <h2>🔍 抽出結果</h2>
     <div id="exportSection" style="display: none;">
       <div class="export-controls">

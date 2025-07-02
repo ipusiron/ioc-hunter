@@ -5,6 +5,7 @@ import { UIController } from './uiController.js';
 import { DarkModeHandler } from './darkModeHandler.js';
 import { ExportHandler } from './exportHandler.js';
 import { ChartRenderer } from './chartRenderer.js';
+import { WhitelistManager } from './whitelistManager.js';
 
 class IOCHunterApp {
   constructor() {
@@ -14,6 +15,7 @@ class IOCHunterApp {
     this.darkModeHandler = new DarkModeHandler();
     this.exportHandler = new ExportHandler();
     this.chartRenderer = new ChartRenderer();
+    this.whitelistManager = new WhitelistManager();
     
     this.init();
   }
@@ -29,6 +31,22 @@ class IOCHunterApp {
     this.ui.bindTestLogToggle((e) => this.handleTestLogToggle(e));
     this.ui.bindLoadSampleHandler(() => this.handleLoadSample());
     this.ui.bindDownloadHandler(() => this.handleDownload());
+    
+    // ホワイトリスト関連のイベントバインド
+    this.ui.bindAddWhitelistHandler(() => this.handleAddWhitelist());
+    this.ui.bindWhitelistToggleHandler((e) => this.handleWhitelistToggle(e));
+    this.ui.setRemoveWhitelistHandler((ioc) => this.handleRemoveWhitelist(ioc));
+    
+    // ホワイトリストの初期化
+    this.whitelistManager.init();
+    this.analyzer.setWhitelistManager(this.whitelistManager);
+    this.whitelistManager.setOnChangeCallback((data) => {
+      this.ui.updateWhitelistDisplay(data.whitelist);
+    });
+    
+    // 初期表示を更新
+    this.ui.setWhitelistEnabled(this.whitelistManager.isEnabled());
+    this.ui.updateWhitelistDisplay(this.whitelistManager.getAll());
     
     this.darkModeHandler.init();
     this.darkModeHandler.setOnToggleCallback(() => {
@@ -126,6 +144,25 @@ class IOCHunterApp {
     } catch (error) {
       this.ui.showError(error.message);
     }
+  }
+
+  handleAddWhitelist() {
+    const ioc = this.ui.getWhitelistInput();
+    if (ioc.trim()) {
+      if (this.whitelistManager.add(ioc)) {
+        this.ui.clearWhitelistInput();
+      } else {
+        this.ui.showError('無効なIOCまたは既に追加済みです');
+      }
+    }
+  }
+
+  handleRemoveWhitelist(ioc) {
+    this.whitelistManager.remove(ioc);
+  }
+
+  handleWhitelistToggle(event) {
+    this.whitelistManager.setEnabled(event.target.checked);
   }
 }
 
