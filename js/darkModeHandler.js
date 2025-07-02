@@ -3,6 +3,7 @@ export class DarkModeHandler {
     this.STORAGE_KEY = 'ioc-hunter-dark-mode';
     this.toggleButton = document.getElementById('darkModeToggle');
     this.body = document.body;
+    this.onToggleCallback = null;
   }
 
   init() {
@@ -38,6 +39,15 @@ export class DarkModeHandler {
       this.enableDarkMode();
       this.saveMode(true);
     }
+    
+    // コールバックを実行（グラフの再描画など）
+    if (this.onToggleCallback) {
+      this.onToggleCallback();
+    }
+  }
+
+  setOnToggleCallback(callback) {
+    this.onToggleCallback = callback;
   }
 
   enableDarkMode() {

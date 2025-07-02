@@ -283,3 +283,23 @@ body.dark-mode #downloadButton {
 body.dark-mode #downloadButton:hover {
   background: #388e3c;
 }
+
+/* グラフコンテナ */
+#chartContainer {
+  margin: 1em 0;
+  padding: 1em;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  text-align: center;
+}
+
+body.dark-mode #chartContainer {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+#iocChart {
+  max-width: 100%;
+  height: auto;
+}

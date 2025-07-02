@@ -14,7 +14,9 @@ export class UIController {
       darkModeToggle: document.getElementById('darkModeToggle'),
       exportSection: document.getElementById('exportSection'),
       exportFormat: document.getElementById('exportFormat'),
-      downloadButton: document.getElementById('downloadButton')
+      downloadButton: document.getElementById('downloadButton'),
+      chartContainer: document.getElementById('chartContainer'),
+      iocChart: document.getElementById('iocChart')
     };
   }
 

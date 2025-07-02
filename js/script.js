@@ -4,6 +4,7 @@ import { FileHandler } from './fileHandler.js';
 import { UIController } from './uiController.js';
 import { DarkModeHandler } from './darkModeHandler.js';
 import { ExportHandler } from './exportHandler.js';
+import { ChartRenderer } from './chartRenderer.js';
 
 class IOCHunterApp {
   constructor() {
@@ -12,6 +13,7 @@ class IOCHunterApp {
     this.ui = new UIController();
     this.darkModeHandler = new DarkModeHandler();
     this.exportHandler = new ExportHandler();
+    this.chartRenderer = new ChartRenderer();
     
     this.init();
   }
@@ -29,6 +31,13 @@ class IOCHunterApp {
     this.ui.bindDownloadHandler(() => this.handleDownload());
     
     this.darkModeHandler.init();
+    this.darkModeHandler.setOnToggleCallback(() => {
+      // ダークモード切り替え時にグラフを再描画
+      if (this.exportHandler.currentStats) {
+        this.chartRenderer.render(this.exportHandler.currentStats);
+      }
+    });
+    
     this.loadSampleList();
   }
 
@@ -39,6 +48,9 @@ class IOCHunterApp {
     
     this.ui.displayStats(statsHTML);
     this.ui.displayResults(stats, highlighted);
+    
+    // グラフを描画
+    this.chartRenderer.render(stats);
     
     // エクスポート用にstatsを保存し、セクションを表示
     this.exportHandler.setStats(stats);
