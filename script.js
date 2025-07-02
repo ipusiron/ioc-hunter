@@ -2,7 +2,6 @@ document.getElementById("analyzeButton").addEventListener("click", () => {
   const input = document.getElementById("inputText").value;
   const output = document.getElementById("outputArea");
 
-  // 正規表現によるIOC検出
   const patterns = {
     ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
     ipv6: /\b(?:[a-fA-F0-9]{1,4}:){1,7}[a-fA-F0-9]{1,4}\b/g,
@@ -21,3 +20,41 @@ document.getElementById("analyzeButton").addEventListener("click", () => {
 
   output.innerHTML = `<pre>${highlighted}</pre>`;
 });
+
+// ファイル選択による読み込み
+document.getElementById("fileInput").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (file) readFile(file);
+});
+
+// ドラッグ＆ドロップ処理
+const dropArea = document.getElementById("fileDropArea");
+
+dropArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropArea.classList.add("dragover");
+});
+
+dropArea.addEventListener("dragleave", () => {
+  dropArea.classList.remove("dragover");
+});
+
+dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropArea.classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === "text/plain") {
+    readFile(file);
+  } else {
+    alert("テキストファイル（.txt）をドロップしてください。");
+  }
+});
+
+// ファイルを読み込んで textarea に反映
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("inputText").value = reader.result;
+  };
+  reader.readAsText(file);
+}
