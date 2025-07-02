@@ -43,6 +43,16 @@
     <button id="analyzeButton">解析する</button>
 
     <h2>🔍 抽出結果</h2>
+    <div id="exportSection" style="display: none;">
+      <div class="export-controls">
+        <select id="exportFormat">
+          <option value="json">JSON形式</option>
+          <option value="csv">CSV形式</option>
+          <option value="txt">テキスト形式</option>
+        </select>
+        <button id="downloadButton">📥 結果をダウンロード</button>
+      </div>
+    </div>
     <h3>📊 IOC統計</h3>
     <div id="statsArea"></div>
     <h3>📝 抽出結果</h3>

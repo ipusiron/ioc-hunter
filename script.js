@@ -3,6 +3,7 @@ import { IOCAnalyzer } from './iocAnalyzer.js';
 import { FileHandler } from './fileHandler.js';
 import { UIController } from './uiController.js';
 import { DarkModeHandler } from './darkModeHandler.js';
+import { ExportHandler } from './exportHandler.js';
 
 class IOCHunterApp {
   constructor() {
@@ -10,6 +11,7 @@ class IOCHunterApp {
     this.fileHandler = new FileHandler();
     this.ui = new UIController();
     this.darkModeHandler = new DarkModeHandler();
+    this.exportHandler = new ExportHandler();
     
     this.init();
   }
@@ -24,6 +26,7 @@ class IOCHunterApp {
     });
     this.ui.bindTestLogToggle((e) => this.handleTestLogToggle(e));
     this.ui.bindLoadSampleHandler(() => this.handleLoadSample());
+    this.ui.bindDownloadHandler(() => this.handleDownload());
     
     this.darkModeHandler.init();
     this.loadSampleList();
@@ -36,6 +39,10 @@ class IOCHunterApp {
     
     this.ui.displayStats(statsHTML);
     this.ui.displayResults(stats, highlighted);
+    
+    // エクスポート用にstatsを保存し、セクションを表示
+    this.exportHandler.setStats(stats);
+    this.ui.showExportSection();
   }
 
   async handleFileSelect(event) {
@@ -97,6 +104,15 @@ class IOCHunterApp {
       this.ui.populateSampleSelector(samples);
     } catch (error) {
       console.error('サンプルリストの読み込みに失敗:', error);
+    }
+  }
+
+  handleDownload() {
+    try {
+      const format = this.ui.getExportFormat();
+      this.exportHandler.download(format);
+    } catch (error) {
+      this.ui.showError(error.message);
     }
   }
 }

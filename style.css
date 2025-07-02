@@ -231,3 +231,55 @@ body.dark-mode .footer {
 body.dark-mode .footer a {
   color: #4fc3f7;
 }
+
+/* エクスポートセクション */
+.export-controls {
+  margin: 1em 0;
+  padding: 1em;
+  background: #f0f0f0;
+  border-radius: 5px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+body.dark-mode .export-controls {
+  background: #2a2a2a;
+}
+
+#exportFormat {
+  padding: 6px 12px;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+
+body.dark-mode #exportFormat {
+  background: #333;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+#downloadButton {
+  padding: 8px 16px;
+  font-size: 0.95em;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#downloadButton:hover {
+  background: #218838;
+}
+
+body.dark-mode #downloadButton {
+  background: #2e7d32;
+}
+
+body.dark-mode #downloadButton:hover {
+  background: #388e3c;
+}

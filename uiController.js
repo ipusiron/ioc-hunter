@@ -11,7 +11,10 @@ export class UIController {
       testLoader: document.getElementById('testLoader'),
       sampleSelector: document.getElementById('sampleSelector'),
       loadSample: document.getElementById('loadSample'),
-      darkModeToggle: document.getElementById('darkModeToggle')
+      darkModeToggle: document.getElementById('darkModeToggle'),
+      exportSection: document.getElementById('exportSection'),
+      exportFormat: document.getElementById('exportFormat'),
+      downloadButton: document.getElementById('downloadButton')
     };
   }
 
@@ -81,5 +84,21 @@ export class UIController {
 
   bindLoadSampleHandler(handler) {
     this.elements.loadSample.addEventListener('click', handler);
+  }
+
+  bindDownloadHandler(handler) {
+    this.elements.downloadButton.addEventListener('click', handler);
+  }
+
+  getExportFormat() {
+    return this.elements.exportFormat.value;
+  }
+
+  showExportSection() {
+    this.elements.exportSection.style.display = 'block';
+  }
+
+  hideExportSection() {
+    this.elements.exportSection.style.display = 'none';
   }
 }
