@@ -65,3 +65,14 @@ button {
   cursor: pointer;
   text-decoration: underline;
 }
+
+#testLoader {
+  margin: 1em 0;
+}
+
+#testLoader select,
+#testLoader button {
+  font-size: 1em;
+  padding: 6px 12px;
+  margin-right: 8px;
+}

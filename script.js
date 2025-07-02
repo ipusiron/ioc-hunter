@@ -66,3 +66,37 @@ function readFile(file) {
   };
   reader.readAsText(file);
 }
+
+// テストログの定義
+const testLogs = {
+  apache: `
+192.0.2.10 - - [02/Jul/2025:10:00:01 +0900] "GET /index.html HTTP/1.1" 200 1024
+203.0.113.55 - - [02/Jul/2025:10:01:12 +0900] "POST /login.php HTTP/1.1" 302 512 "http://evil.example.com"
+198.51.100.23 - - [02/Jul/2025:10:02:45 +0900] "GET /api?hash=5f4dcc3b5aa765d61d8327deb882cf99" 200 256
+`,
+  auth: `
+Jul 2 10:05:01 localhost sshd[2345]: Failed password for invalid user admin from 203.0.113.123 port 22 ssh2
+Jul 2 10:05:04 localhost sshd[2346]: Accepted password for user1 from 192.0.2.55 port 22 ssh2
+`,
+  mail: `
+Jul 2 10:00:01 mail postfix/smtpd[1234]: connect from unknown[203.0.113.50]
+Jul 2 10:00:02 mail postfix/smtpd[1234]: NOQUEUE: reject: RCPT from unknown[203.0.113.50]: 554 5.7.1 <spam@badmail.com>
+`,
+  dns: `
+02-Jul-2025 10:01:01.123 client 203.0.113.88#12345: query: bad-domain.xyz IN A + (192.0.2.1)
+02-Jul-2025 10:01:02.456 client 203.0.113.88#12345: query: update.example.org IN MX + (192.0.2.1)
+`,
+  proxy: `
+192.0.2.15 - - [02/Jul/2025:10:02:30 +0900] "GET http://malicious.site/dropper.js HTTP/1.1" 200 512 "-" "curl/7.64.1"
+`,
+};
+
+// プルダウン＋ボタンによる読み込み
+document.getElementById("loadSample").addEventListener("click", () => {
+  const key = document.getElementById("sampleSelector").value;
+  if (key && testLogs[key]) {
+    document.getElementById("inputText").value = testLogs[key].trim();
+  } else {
+    alert("読み込むテストログを選択してください。");
+  }
+});

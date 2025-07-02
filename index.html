@@ -1,25 +1,48 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IOCハンター</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>🕵️ IOCハンター</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IOCハンター</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>🕵️ IOCハンター</h1>
 
-  <div id="fileDropArea">
-    <p>ここに .txt ファイルをドロップするか、<label for="fileInput" class="fileLabel">ファイルを選択</label></p>
-    <input type="file" id="fileInput" accept=".txt" hidden />
-  </div>
+    <div id="fileDropArea">
+      <p>
+        ここに .txt ファイルをドロップするか、<label
+          for="fileInput"
+          class="fileLabel"
+          >ファイルを選択</label
+        >
+      </p>
+      <input type="file" id="fileInput" accept=".txt" hidden />
+    </div>
 
-  <textarea id="inputText" placeholder="ここにログやテキストを貼り付けてください..." rows="15"></textarea>
-  <button id="analyzeButton">解析する</button>
+    <h2>🧪 テスト用ログを読み込む</h2>
+    <div id="testLoader">
+      <select id="sampleSelector">
+        <option value="">←選択してください</option>
+        <option value="apache">Apache アクセスログ</option>
+        <option value="auth">Linux auth.log</option>
+        <option value="mail">メールログ</option>
+        <option value="dns">DNSログ</option>
+        <option value="proxy">Proxyログ</option>
+      </select>
+      <button id="loadSample">読み込む</button>
+    </div>
 
-  <h2>🔍 抽出結果</h2>
-  <div id="outputArea"></div>
+    <textarea
+      id="inputText"
+      placeholder="ここにログやテキストを貼り付けてください..."
+      rows="15"
+    ></textarea>
+    <button id="analyzeButton">解析する</button>
 
-  <script src="script.js"></script>
-</body>
+    <h2>🔍 抽出結果</h2>
+    <div id="outputArea"></div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
