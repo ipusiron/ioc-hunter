@@ -1,0 +1,46 @@
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: 2em auto;
+  padding: 1em;
+  background: #f9f9f9;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 1em;
+  box-sizing: border-box;
+  margin-bottom: 1em;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#outputArea {
+  margin-top: 1em;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1em;
+  white-space: pre-wrap;
+}
+
+.ioc {
+  font-weight: bold;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.ioc.ipv4 { background: #d0ebff; color: #0c4f88; }
+.ioc.ipv6 { background: #e3fcef; color: #236e4a; }
+.ioc.domain { background: #fff3bf; color: #856404; }
+.ioc.email { background: #f8d7da; color: #721c24; }
+.ioc.hash { background: #e8daef; color: #4a235a; }
