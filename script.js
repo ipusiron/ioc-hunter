@@ -1,6 +1,7 @@
 document.getElementById("analyzeButton").addEventListener("click", () => {
   const input = document.getElementById("inputText").value;
   const output = document.getElementById("outputArea");
+  const stats = document.getElementById("statsArea");
 
   const patterns = {
     ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
@@ -11,15 +12,31 @@ document.getElementById("analyzeButton").addEventListener("click", () => {
   };
 
   let highlighted = input;
+  let statsHtml = "<ul>";
 
   for (const [type, regex] of Object.entries(patterns)) {
+    // マッチした全件を抽出
+    const matches = [...input.matchAll(regex)].map(m => m[0]);
+    const total = matches.length;
+
+    // 重複を除いたユニーク件数をセットにして取得
+    const uniqueSet = new Set(matches);
+    const unique = uniqueSet.size;
+
+    // 統計情報を追加
+    statsHtml += `<li><strong>${type}</strong>: ${total} 件（ユニーク: ${unique} 件）</li>`;
+
+    // ハイライト処理（置換）
     highlighted = highlighted.replace(regex, match => {
       return `<span class="ioc ${type}">${match}</span>`;
     });
   }
 
+  statsHtml += "</ul>";
+  stats.innerHTML = statsHtml;
   output.innerHTML = `<pre>${highlighted}</pre>`;
 });
+
 
 // ファイル選択による読み込み
 document.getElementById("fileInput").addEventListener("change", (event) => {
