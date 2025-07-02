@@ -64,7 +64,7 @@ export class ChartRenderer {
     // キャンバスのサイズを動的に調整（横棒グラフなので高さを調整）
     const containerWidth = this.chartContainer.clientWidth;
     this.canvas.width = Math.min(containerWidth - 20, 700);
-    this.canvas.height = Math.max(300, data.length * 40 + 100); // データ数に応じて高さを調整
+    this.canvas.height = Math.max(350, data.length * 40 + 120); // 凡例とマージンを考慮して高さを調整
     
     // キャンバスをクリア
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -76,7 +76,7 @@ export class ChartRenderer {
   drawHorizontalBarChart(data, isDarkMode) {
     const padding = 80; // 左側のラベル用に多めに確保
     const rightPadding = 40;
-    const topPadding = 40;
+    const topPadding = 60; // 凡例のスペースを確保
     const bottomPadding = 40;
     
     const chartWidth = this.canvas.width - padding - rightPadding;
@@ -182,10 +182,10 @@ export class ChartRenderer {
       }
     });
     
-    // 凡例
+    // 凡例（左上に配置してグラフとの重複を回避）
     this.ctx.font = '12px sans-serif';
-    const legendX = this.canvas.width - 150;
-    const legendY = 20;
+    const legendX = padding + 20;
+    const legendY = 15;
     
     // サンプル色を使用（最初に見つかったIOCタイプの色）
     const sampleColor = data.length > 0 ? data[0].color : axisColor;
@@ -199,12 +199,12 @@ export class ChartRenderer {
     this.ctx.textAlign = 'left';
     this.ctx.fillText('総数', legendX + 20, legendY + 12);
     
-    // ユニーク数の凡例
+    // ユニーク数の凡例（横並びに配置）
     this.ctx.fillStyle = sampleColor;
     this.ctx.globalAlpha = 0.5;
-    this.ctx.fillRect(legendX, legendY + 20, 15, 15);
+    this.ctx.fillRect(legendX + 80, legendY, 15, 15);
     this.ctx.globalAlpha = 1.0;
     this.ctx.fillStyle = axisColor;
-    this.ctx.fillText('ユニーク', legendX + 20, legendY + 32);
+    this.ctx.fillText('ユニーク', legendX + 100, legendY + 12);
   }
 }
