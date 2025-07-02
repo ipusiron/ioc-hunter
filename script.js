@@ -1,125 +1,104 @@
-document.getElementById('analyzeButton').addEventListener('click', () => {
-  const input = document.getElementById('inputText').value;
-  const output = document.getElementById('outputArea');
-  const stats = document.getElementById('statsArea');
+import { CONFIG } from './config.js';
+import { IOCAnalyzer } from './iocAnalyzer.js';
+import { FileHandler } from './fileHandler.js';
+import { UIController } from './uiController.js';
 
-  const patterns = {
-    ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
-    ipv6: /\b(?:[a-fA-F0-9]{1,4}:){1,7}[a-fA-F0-9]{1,4}\b/g,
-    domain: /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi,
-    email: /\b[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi,
-    hash: /\b[a-fA-F0-9]{32}\b|\b[a-fA-F0-9]{40}\b|\b[a-fA-F0-9]{64}\b/g,
-  };
+class IOCHunterApp {
+  constructor() {
+    this.analyzer = new IOCAnalyzer();
+    this.fileHandler = new FileHandler();
+    this.ui = new UIController();
+    
+    this.init();
+  }
 
-  let highlighted = input;
-  let statsHtml = '<ul>';
-
-  for (const [type, regex] of Object.entries(patterns)) {
-    const matches = [...input.matchAll(regex)].map((m) => m[0]);
-    const total = matches.length;
-    const unique = new Set(matches).size;
-
-    statsHtml += `<li><strong>${type}</strong>: ${total} 件（ユニーク: ${unique} 件）</li>`;
-
-    highlighted = highlighted.replace(regex, (match) => {
-      return `<span class="ioc ${type}">${match}</span>`;
+  init() {
+    this.ui.bindAnalyzeHandler(() => this.handleAnalyze());
+    this.ui.bindFileInputHandler((e) => this.handleFileSelect(e));
+    this.ui.bindDropAreaHandlers({
+      dragover: (e) => this.handleDragOver(e),
+      dragleave: () => this.handleDragLeave(),
+      drop: (e) => this.handleDrop(e)
     });
+    this.ui.bindTestLogToggle((e) => this.handleTestLogToggle(e));
+    this.ui.bindLoadSampleHandler(() => this.handleLoadSample());
+    
+    this.loadSampleList();
   }
 
-  statsHtml += '</ul>';
-  stats.innerHTML = statsHtml;
-  output.innerHTML = `<pre>${highlighted}</pre>`;
-});
-
-// ファイル選択読み込み
-document.getElementById('fileInput').addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) readFile(file);
-});
-
-// ドラッグ＆ドロップ
-const dropArea = document.getElementById('fileDropArea');
-
-dropArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropArea.classList.add('dragover');
-});
-
-dropArea.addEventListener('dragleave', () => {
-  dropArea.classList.remove('dragover');
-});
-
-dropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropArea.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) readFile(file);
-});
-
-// 20MB制限付き読み込み
-function readFile(file) {
-  const MAX_SIZE = 20 * 1024 * 1024;
-  if (file.size > MAX_SIZE) {
-    alert('⚠ このファイルは20MBを超えているため読み込めません。');
-    return;
+  handleAnalyze() {
+    const inputText = this.ui.getInputText();
+    const { stats, highlighted } = this.analyzer.analyze(inputText);
+    const statsHTML = this.analyzer.generateStatsHTML(stats);
+    
+    this.ui.displayStats(statsHTML);
+    this.ui.displayResults(stats, highlighted);
   }
 
-  if (!file.name.endsWith('.txt') && !file.name.endsWith('.log')) {
-    alert('テキストファイル（.txt または .log）を選択してください。');
-    return;
+  async handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+      await this.processFile(file);
+    }
   }
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    document.getElementById('inputText').value = reader.result;
-  };
-  reader.readAsText(file);
+  handleDragOver(event) {
+    event.preventDefault();
+    this.ui.addDragOverClass();
+  }
+
+  handleDragLeave() {
+    this.ui.removeDragOverClass();
+  }
+
+  async handleDrop(event) {
+    event.preventDefault();
+    this.ui.removeDragOverClass();
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      await this.processFile(file);
+    }
+  }
+
+  async processFile(file) {
+    try {
+      const content = await this.fileHandler.readFile(file);
+      this.ui.setInputText(content);
+    } catch (error) {
+      this.ui.showError(error.message);
+    }
+  }
+
+  handleTestLogToggle(event) {
+    this.ui.toggleTestLoader(event.target.checked);
+  }
+
+  async handleLoadSample() {
+    const filename = this.ui.getSelectedSample();
+    if (!filename) {
+      this.ui.showError(CONFIG.MESSAGES.NO_SAMPLE_SELECTED);
+      return;
+    }
+
+    try {
+      const content = await this.fileHandler.loadSampleFile(filename);
+      this.ui.setInputText(content.trim());
+    } catch (error) {
+      this.ui.showError(error.message);
+    }
+  }
+
+  async loadSampleList() {
+    try {
+      const samples = await this.fileHandler.loadSampleList();
+      this.ui.populateSampleSelector(samples);
+    } catch (error) {
+      console.error('サンプルリストの読み込みに失敗:', error);
+    }
+  }
 }
 
-// list.txt を使ってサンプルログ一覧を読み込む
+// アプリケーションの初期化
 window.addEventListener('DOMContentLoaded', () => {
-  fetch('samples/list.txt')
-    .then((res) => res.text())
-    .then((text) => {
-      const selector = document.getElementById('sampleSelector');
-      const lines = text.split(/\r?\n/);
-      lines.forEach((line) => {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.includes(':')) return;
-        const [filename, label] = trimmed.split(':', 2);
-        const option = document.createElement('option');
-        option.value = filename;
-        option.textContent = label;
-        selector.appendChild(option);
-      });
-    });
-});
-
-// サンプル読み込みボタン
-document.getElementById('loadSample').addEventListener('click', () => {
-  const filename = document.getElementById('sampleSelector').value;
-  if (!filename) {
-    alert('読み込むテストログを選択してください。');
-    return;
-  }
-
-  fetch(`samples/${filename}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`ファイル読み込みに失敗しました: ${filename}`);
-      }
-      return response.text();
-    })
-    .then((text) => {
-      document.getElementById('inputText').value = text.trim();
-    })
-    .catch((err) => {
-      alert(err.message);
-    });
-});
-
-// チェックでテストログ選択UIを表示/非表示
-document.getElementById('useTestLog').addEventListener('change', function () {
-  const testLoader = document.getElementById('testLoader');
-  testLoader.style.display = this.checked ? 'block' : 'none';
+  new IOCHunterApp();
 });
