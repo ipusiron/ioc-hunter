@@ -282,7 +282,8 @@ export class AnalysisEngine {
       registryKey: 5,
       bitcoin: 7,
       cve: 8,
-      mitre: 6
+      mitre: 6,
+      flag: 2
     };
     
     iocs.forEach(ioc => {

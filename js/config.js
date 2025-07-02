@@ -16,6 +16,7 @@ export const CONFIG = {
     bitcoin: /\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})\b/g,
     cve: /CVE-\d{4}-\d{4,}/g,
     mitre: /T\d{4}(?:\.\d{3})?/g,
+    flag: /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm|FLAG|CTF|PICOCTF|HACKTHEBOX|TRYHACKME|HTB|THM)\{[^}]+\}/g,
   },
   MESSAGES: {
     FILE_TOO_LARGE: '⚠ このファイルは20MBを超えているため読み込めません。',

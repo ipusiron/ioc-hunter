@@ -89,6 +89,7 @@ export class HelpModal {
               <li><span class="ioc-sample cve">CVE番号</span> - CVE-2021-44228</li>
               <li><span class="ioc-sample mitre">MITRE ATT&CK</span> - T1566.001</li>
               <li><span class="ioc-sample bitcoin">Bitcoin</span> - 1A1zP1eP5QGefi2DMPTf...</li>
+              <li><span class="ioc-sample flag">CTFフラグ</span> - flag{example_flag}</li>
             </ul>
           </div>
         </div>

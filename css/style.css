@@ -50,6 +50,7 @@ button {
 .ioc.bitcoin { background: #fff3cd; color: #856404; }
 .ioc.cve { background: #d1ecf1; color: #0c5460; }
 .ioc.mitre { background: #d6d8db; color: #383d41; }
+.ioc.flag { background: #ffe6e6; color: #cc0000; }
 
 #fileDropArea {
   border: 2px dashed #ccc;
@@ -209,6 +210,7 @@ body.dark-mode .ioc.registryKey { background: #880e4f; color: #f48fb1; }
 body.dark-mode .ioc.bitcoin { background: #e65100; color: #ffb74d; }
 body.dark-mode .ioc.cve { background: #006064; color: #4dd0e1; }
 body.dark-mode .ioc.mitre { background: #424242; color: #bdbdbd; }
+body.dark-mode .ioc.flag { background: #5d1a1a; color: #ff6b6b; }
 
 /* フッター */
 .app-footer {
@@ -664,6 +666,7 @@ body.dark-mode .help-section h4 {
 .ioc-sample.bitcoin { background: #fff3cd; color: #856404; }
 .ioc-sample.cve { background: #d1ecf1; color: #0c5460; }
 .ioc-sample.mitre { background: #d6d8db; color: #383d41; }
+.ioc-sample.flag { background: #ffe6e6; color: #cc0000; }
 
 /* ダークモード用IOCサンプル */
 body.dark-mode .ioc-sample.ipv4 { background: #1e3a5f; color: #64b5f6; }
@@ -677,6 +680,7 @@ body.dark-mode .ioc-sample.registryKey { background: #880e4f; color: #f48fb1; }
 body.dark-mode .ioc-sample.bitcoin { background: #e65100; color: #ffb74d; }
 body.dark-mode .ioc-sample.cve { background: #006064; color: #4dd0e1; }
 body.dark-mode .ioc-sample.mitre { background: #424242; color: #bdbdbd; }
+body.dark-mode .ioc-sample.flag { background: #5d1a1a; color: #ff6b6b; }
 
 /* タブコンテナ */
 .tab-container {
