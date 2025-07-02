@@ -1,0 +1,10 @@
+Jul 2 10:00:01 mail postfix/smtpd[1234]: connect from unknown[203.0.113.50]
+Jul 2 10:00:02 mail postfix/smtpd[1234]: NOQUEUE: reject: RCPT from unknown[203.0.113.50]: 554 5.7.1 <spam@badmail.com>
+Jul 2 10:01:15 mail postfix/smtpd[1235]: connect from mail.example.org[198.51.100.21]
+Jul 2 10:01:16 mail postfix/smtpd[1235]: 123456789: client=mail.example.org[198.51.100.21]
+Jul 2 10:01:17 mail postfix/cleanup[1236]: 123456789: message-id=<abc123@example.org>
+Jul 2 10:01:18 mail postfix/qmgr[1237]: 123456789: from=<sender@example.org>, size=1234, nrcpt=1 (queue active)
+Jul 2 10:01:19 mail postfix/smtp[1238]: 123456789: to=<user1@example.net>, relay=example.net[192.0.2.200]:25, delay=0.5
+Jul 2 10:01:20 mail postfix/smtp[1238]: 123456789: message delivered to <user1@example.net>
+Jul 2 10:01:21 mail postfix/qmgr[1237]: 123456789: removed
+Jul 2 10:01:22 mail postfix/smtpd[1239]: disconnect from mail.example.org[198.51.100.21]

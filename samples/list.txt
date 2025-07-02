@@ -1,0 +1,5 @@
+apache.txt:Apache アクセスログ
+auth.log:Linux auth.log
+mail.log:メールログ
+dns.log:DNSログ
+proxy.log:Proxyログ

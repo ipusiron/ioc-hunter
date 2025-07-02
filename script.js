@@ -1,7 +1,7 @@
-document.getElementById("analyzeButton").addEventListener("click", () => {
-  const input = document.getElementById("inputText").value;
-  const output = document.getElementById("outputArea");
-  const stats = document.getElementById("statsArea");
+document.getElementById('analyzeButton').addEventListener('click', () => {
+  const input = document.getElementById('inputText').value;
+  const output = document.getElementById('outputArea');
+  const stats = document.getElementById('statsArea');
 
   const patterns = {
     ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
@@ -12,108 +12,114 @@ document.getElementById("analyzeButton").addEventListener("click", () => {
   };
 
   let highlighted = input;
-  let statsHtml = "<ul>";
+  let statsHtml = '<ul>';
 
   for (const [type, regex] of Object.entries(patterns)) {
-    // マッチした全件を抽出
-    const matches = [...input.matchAll(regex)].map(m => m[0]);
+    const matches = [...input.matchAll(regex)].map((m) => m[0]);
     const total = matches.length;
+    const unique = new Set(matches).size;
 
-    // 重複を除いたユニーク件数をセットにして取得
-    const uniqueSet = new Set(matches);
-    const unique = uniqueSet.size;
-
-    // 統計情報を追加
     statsHtml += `<li><strong>${type}</strong>: ${total} 件（ユニーク: ${unique} 件）</li>`;
 
-    // ハイライト処理（置換）
-    highlighted = highlighted.replace(regex, match => {
+    highlighted = highlighted.replace(regex, (match) => {
       return `<span class="ioc ${type}">${match}</span>`;
     });
   }
 
-  statsHtml += "</ul>";
+  statsHtml += '</ul>';
   stats.innerHTML = statsHtml;
   output.innerHTML = `<pre>${highlighted}</pre>`;
 });
 
-
-// ファイル選択による読み込み
-document.getElementById("fileInput").addEventListener("change", (event) => {
+// ファイル選択読み込み
+document.getElementById('fileInput').addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) readFile(file);
 });
 
-// ドラッグ＆ドロップ処理
-const dropArea = document.getElementById("fileDropArea");
+// ドラッグ＆ドロップ
+const dropArea = document.getElementById('fileDropArea');
 
-dropArea.addEventListener("dragover", (e) => {
+dropArea.addEventListener('dragover', (e) => {
   e.preventDefault();
-  dropArea.classList.add("dragover");
+  dropArea.classList.add('dragover');
 });
 
-dropArea.addEventListener("dragleave", () => {
-  dropArea.classList.remove("dragover");
+dropArea.addEventListener('dragleave', () => {
+  dropArea.classList.remove('dragover');
 });
 
-dropArea.addEventListener("drop", (e) => {
+dropArea.addEventListener('drop', (e) => {
   e.preventDefault();
-  dropArea.classList.remove("dragover");
+  dropArea.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
   if (file) readFile(file);
 });
 
-// ファイル読み込み＋サイズ制限（20MBまで許可）
+// 20MB制限付き読み込み
 function readFile(file) {
-  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
-
+  const MAX_SIZE = 20 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
-    alert("⚠ このファイルは20MBを超えているため読み込めません。");
+    alert('⚠ このファイルは20MBを超えているため読み込めません。');
     return;
   }
 
-  if (!file.type.startsWith("text/") && !file.name.endsWith(".txt")) {
-    alert("テキストファイル（.txt）を選択してください。");
+  if (!file.name.endsWith('.txt') && !file.name.endsWith('.log')) {
+    alert('テキストファイル（.txt または .log）を選択してください。');
     return;
   }
 
   const reader = new FileReader();
   reader.onload = () => {
-    document.getElementById("inputText").value = reader.result;
+    document.getElementById('inputText').value = reader.result;
   };
   reader.readAsText(file);
 }
 
-// テストログの定義
-const testLogs = {
-  apache: `
-192.0.2.10 - - [02/Jul/2025:10:00:01 +0900] "GET /index.html HTTP/1.1" 200 1024
-203.0.113.55 - - [02/Jul/2025:10:01:12 +0900] "POST /login.php HTTP/1.1" 302 512 "http://evil.example.com"
-198.51.100.23 - - [02/Jul/2025:10:02:45 +0900] "GET /api?hash=5f4dcc3b5aa765d61d8327deb882cf99" 200 256
-`,
-  auth: `
-Jul 2 10:05:01 localhost sshd[2345]: Failed password for invalid user admin from 203.0.113.123 port 22 ssh2
-Jul 2 10:05:04 localhost sshd[2346]: Accepted password for user1 from 192.0.2.55 port 22 ssh2
-`,
-  mail: `
-Jul 2 10:00:01 mail postfix/smtpd[1234]: connect from unknown[203.0.113.50]
-Jul 2 10:00:02 mail postfix/smtpd[1234]: NOQUEUE: reject: RCPT from unknown[203.0.113.50]: 554 5.7.1 <spam@badmail.com>
-`,
-  dns: `
-02-Jul-2025 10:01:01.123 client 203.0.113.88#12345: query: bad-domain.xyz IN A + (192.0.2.1)
-02-Jul-2025 10:01:02.456 client 203.0.113.88#12345: query: update.example.org IN MX + (192.0.2.1)
-`,
-  proxy: `
-192.0.2.15 - - [02/Jul/2025:10:02:30 +0900] "GET http://malicious.site/dropper.js HTTP/1.1" 200 512 "-" "curl/7.64.1"
-`,
-};
+// list.txt を使ってサンプルログ一覧を読み込む
+window.addEventListener('DOMContentLoaded', () => {
+  fetch('samples/list.txt')
+    .then((res) => res.text())
+    .then((text) => {
+      const selector = document.getElementById('sampleSelector');
+      const lines = text.split(/\r?\n/);
+      lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.includes(':')) return;
+        const [filename, label] = trimmed.split(':', 2);
+        const option = document.createElement('option');
+        option.value = filename;
+        option.textContent = label;
+        selector.appendChild(option);
+      });
+    });
+});
 
-// プルダウン＋ボタンによる読み込み
-document.getElementById("loadSample").addEventListener("click", () => {
-  const key = document.getElementById("sampleSelector").value;
-  if (key && testLogs[key]) {
-    document.getElementById("inputText").value = testLogs[key].trim();
-  } else {
-    alert("読み込むテストログを選択してください。");
+// サンプル読み込みボタン
+document.getElementById('loadSample').addEventListener('click', () => {
+  const filename = document.getElementById('sampleSelector').value;
+  if (!filename) {
+    alert('読み込むテストログを選択してください。');
+    return;
   }
+
+  fetch(`samples/${filename}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`ファイル読み込みに失敗しました: ${filename}`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      document.getElementById('inputText').value = text.trim();
+    })
+    .catch((err) => {
+      alert(err.message);
+    });
+});
+
+// チェックでテストログ選択UIを表示/非表示
+document.getElementById('useTestLog').addEventListener('change', function () {
+  const testLoader = document.getElementById('testLoader');
+  testLoader.style.display = this.checked ? 'block' : 'none';
 });

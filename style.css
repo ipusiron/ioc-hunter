@@ -6,7 +6,7 @@ body {
   background: #f9f9f9;
 }
 
-h1, h2 {
+h1, h2, h3 {
   color: #333;
 }
 
@@ -20,7 +20,7 @@ textarea {
 }
 
 button {
-  padding: 10px 20px;
+  padding: 8px 16px;
   font-size: 1em;
   cursor: pointer;
 }
@@ -45,7 +45,6 @@ button {
 .ioc.email { background: #f8d7da; color: #721c24; }
 .ioc.hash { background: #e8daef; color: #4a235a; }
 
-/* ファイル入力・ドラッグ領域 */
 #fileDropArea {
   border: 2px dashed #ccc;
   padding: 1em;
@@ -66,15 +65,23 @@ button {
   text-decoration: underline;
 }
 
+#testToggle {
+  margin: 1em 0 0.5em;
+  font-size: 0.9em;
+  color: #444;
+}
+
 #testLoader {
-  margin: 1em 0;
+  margin: 0.5em 0 1em;
+  font-size: 0.9em;
+  color: #444;
 }
 
 #testLoader select,
 #testLoader button {
-  font-size: 1em;
-  padding: 6px 12px;
-  margin-right: 8px;
+  font-size: 0.9em;
+  padding: 5px 10px;
+  margin-right: 6px;
 }
 
 #statsArea ul {

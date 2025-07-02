@@ -11,24 +11,21 @@
 
     <div id="fileDropArea">
       <p>
-        ここに .txt ファイルをドロップするか、<label
-          for="fileInput"
-          class="fileLabel"
-          >ファイルを選択</label
-        >
+        ここに .txt ファイルをドロップするか、
+        <label for="fileInput" class="fileLabel">ファイルを選択</label>
       </p>
-      <input type="file" id="fileInput" accept=".txt" hidden />
+      <input type="file" id="fileInput" accept=".txt,.log" hidden />
     </div>
 
-    <h2>🧪 テスト用ログを読み込む</h2>
-    <div id="testLoader">
+    <!-- テストログ切り替えチェック -->
+    <div id="testToggle">
+      <label><input type="checkbox" id="useTestLog" /> テストログを使う</label>
+    </div>
+
+    <!-- テストログ選択UI -->
+    <div id="testLoader" style="display: none;">
       <select id="sampleSelector">
-        <option value="">←選択してください</option>
-        <option value="apache">Apache アクセスログ</option>
-        <option value="auth">Linux auth.log</option>
-        <option value="mail">メールログ</option>
-        <option value="dns">DNSログ</option>
-        <option value="proxy">Proxyログ</option>
+        <option value="">テスト用ログファイルを選択してください</option>
       </select>
       <button id="loadSample">読み込む</button>
     </div>
