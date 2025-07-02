@@ -43,15 +43,23 @@ dropArea.addEventListener("drop", (e) => {
   e.preventDefault();
   dropArea.classList.remove("dragover");
   const file = e.dataTransfer.files[0];
-  if (file && file.type === "text/plain") {
-    readFile(file);
-  } else {
-    alert("テキストファイル（.txt）をドロップしてください。");
-  }
+  if (file) readFile(file);
 });
 
-// ファイルを読み込んで textarea に反映
+// ファイル読み込み＋サイズ制限（20MBまで許可）
 function readFile(file) {
+  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+
+  if (file.size > MAX_SIZE) {
+    alert("⚠ このファイルは20MBを超えているため読み込めません。");
+    return;
+  }
+
+  if (!file.type.startsWith("text/") && !file.name.endsWith(".txt")) {
+    alert("テキストファイル（.txt）を選択してください。");
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = () => {
     document.getElementById("inputText").value = reader.result;
