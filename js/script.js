@@ -7,6 +7,8 @@ import { ExportHandler } from './exportHandler.js';
 import { ChartRenderer } from './chartRenderer.js';
 import { WhitelistManager } from './whitelistManager.js';
 import { HelpModal } from './helpModal.js';
+import { AnalysisEngine } from './analysisEngine.js';
+import { TabManager } from './tabManager.js';
 
 class IOCHunterApp {
   constructor() {
@@ -18,6 +20,8 @@ class IOCHunterApp {
     this.chartRenderer = new ChartRenderer();
     this.whitelistManager = new WhitelistManager();
     this.helpModal = new HelpModal();
+    this.analysisEngine = new AnalysisEngine();
+    this.tabManager = new TabManager();
     
     this.init();
   }
@@ -66,15 +70,41 @@ class IOCHunterApp {
     const { stats, highlighted } = this.analyzer.analyze(inputText);
     const statsHTML = this.analyzer.generateStatsHTML(stats);
     
+    // 基本的な統計とハイライト表示
     this.ui.displayStats(statsHTML);
     this.ui.displayResults(stats, highlighted);
     
     // グラフを描画
     this.chartRenderer.render(stats);
     
+    // 高度な分析を実行
+    this.performAdvancedAnalysis(inputText, stats);
+    
     // エクスポート用にstatsを保存し、セクションを表示
     this.exportHandler.setStats(stats);
     this.ui.showExportSection();
+    this.ui.showResultsSection();
+  }
+
+  performAdvancedAnalysis(inputText, stats) {
+    // 分析エンジンにデータを設定
+    this.analysisEngine.setData(inputText, stats);
+    
+    // 関連性分析
+    const correlations = this.analysisEngine.analyzeCorrelations();
+    this.tabManager.updateAnalysisTab(correlations);
+    
+    // タイムライン分析
+    const timelineGroups = this.analysisEngine.analyzeTimeline();
+    this.tabManager.updateTimelineTab(timelineGroups);
+    
+    // 詳細統計（概要タブに追加情報として表示）
+    const detailedStats = this.analysisEngine.generateDetailedStats();
+    const detailedHTML = this.tabManager.generateDetailedStatsHTML(detailedStats);
+    
+    // 既存の統計の下に詳細統計を追加
+    const statsArea = document.getElementById('statsArea');
+    statsArea.innerHTML += detailedHTML;
   }
 
   async handleFileSelect(event) {

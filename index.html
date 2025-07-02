@@ -76,13 +76,47 @@
         <button id="downloadButton">📥 結果をダウンロード</button>
       </div>
     </div>
-    <h3>📊 IOC統計</h3>
-    <div id="chartContainer" style="display: none;">
-      <canvas id="iocChart" width="800" height="350"></canvas>
+
+    <!-- 結果表示タブ -->
+    <div id="resultsSection" style="display: none;">
+      <div class="tab-container">
+        <div class="tab-buttons">
+          <button class="tab-button active" data-tab="overview">📊 概要</button>
+          <button class="tab-button" data-tab="analysis">🔬 分析</button>
+          <button class="tab-button" data-tab="timeline">📅 タイムライン</button>
+          <button class="tab-button" data-tab="details">📝 詳細</button>
+        </div>
+        
+        <div class="tab-content">
+          <!-- 概要タブ -->
+          <div id="tab-overview" class="tab-panel active">
+            <h3>📊 IOC統計</h3>
+            <div id="chartContainer">
+              <canvas id="iocChart" width="800" height="350"></canvas>
+            </div>
+            <div id="statsArea"></div>
+          </div>
+
+          <!-- 分析タブ -->
+          <div id="tab-analysis" class="tab-panel">
+            <h3>🔬 関連性分析</h3>
+            <div id="analysisArea"></div>
+          </div>
+
+          <!-- タイムラインタブ -->
+          <div id="tab-timeline" class="tab-panel">
+            <h3>📅 タイムライン分析</h3>
+            <div id="timelineArea"></div>
+          </div>
+
+          <!-- 詳細タブ -->
+          <div id="tab-details" class="tab-panel">
+            <h3>📝 抽出結果</h3>
+            <div id="outputArea"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="statsArea"></div>
-    <h3>📝 抽出結果</h3>
-    <div id="outputArea"></div>
 
     <!-- ヘルプモーダル -->
     <div id="helpModal" class="modal" style="display: none;">

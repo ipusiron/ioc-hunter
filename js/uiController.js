@@ -21,7 +21,10 @@ export class UIController {
       whitelistInput: document.getElementById('whitelistInput'),
       addWhitelistButton: document.getElementById('addWhitelistButton'),
       enableWhitelist: document.getElementById('enableWhitelist'),
-      whitelistDisplay: document.getElementById('whitelistDisplay')
+      whitelistDisplay: document.getElementById('whitelistDisplay'),
+      resultsSection: document.getElementById('resultsSection'),
+      analysisArea: document.getElementById('analysisArea'),
+      timelineArea: document.getElementById('timelineArea')
     };
   }
 
@@ -107,6 +110,14 @@ export class UIController {
 
   hideExportSection() {
     this.elements.exportSection.style.display = 'none';
+  }
+
+  showResultsSection() {
+    this.elements.resultsSection.style.display = 'block';
+  }
+
+  hideResultsSection() {
+    this.elements.resultsSection.style.display = 'none';
   }
 
   bindAddWhitelistHandler(handler) {
