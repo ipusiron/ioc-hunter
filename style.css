@@ -93,3 +93,141 @@ button {
   margin-bottom: 4px;
   font-size: 0.95em;
 }
+
+/* ヘッダーとダークモードボタン */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.dark-mode-toggle {
+  background: transparent;
+  border: 2px solid #666;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode-toggle:hover {
+  background: #f0f0f0;
+  transform: scale(1.1);
+}
+
+/* ダークモードスタイル */
+body.dark-mode {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode textarea {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+body.dark-mode button {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+}
+
+body.dark-mode button:hover {
+  background: #444;
+}
+
+body.dark-mode #outputArea {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode #fileDropArea {
+  background: #2a2a2a;
+  border-color: #555;
+}
+
+body.dark-mode #fileDropArea.dragover {
+  background-color: #1e3a4a;
+  border-color: #00acc1;
+}
+
+body.dark-mode .fileLabel {
+  color: #4fc3f7;
+}
+
+body.dark-mode #testToggle,
+body.dark-mode #testLoader {
+  color: #b0b0b0;
+}
+
+body.dark-mode .dark-mode-toggle {
+  border-color: #e0e0e0;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  background: #333;
+}
+
+body.dark-mode .dark-mode-icon::before {
+  content: '☀️';
+}
+
+.dark-mode-icon::before {
+  content: '🌙';
+}
+
+/* ダークモード用IOCハイライト */
+body.dark-mode .ioc.ipv4 { background: #1e3a5f; color: #64b5f6; }
+body.dark-mode .ioc.ipv6 { background: #1b5e3f; color: #66bb6a; }
+body.dark-mode .ioc.domain { background: #5d4e37; color: #ffb74d; }
+body.dark-mode .ioc.email { background: #5d1f1f; color: #ef5350; }
+body.dark-mode .ioc.hash { background: #4a148c; color: #ba68c8; }
+
+/* フッター */
+.app-footer {
+  margin-top: 3em;
+  padding: 1em 0;
+  border-top: 1px solid #ddd;
+  text-align: center;
+}
+
+body.dark-mode .app-footer {
+  border-top-color: #444;
+}
+
+.footer {
+  font-size: 0.9em;
+  color: #666;
+}
+
+body.dark-mode .footer {
+  color: #999;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+body.dark-mode .footer a {
+  color: #4fc3f7;
+}

@@ -2,12 +2,14 @@ import { CONFIG } from './config.js';
 import { IOCAnalyzer } from './iocAnalyzer.js';
 import { FileHandler } from './fileHandler.js';
 import { UIController } from './uiController.js';
+import { DarkModeHandler } from './darkModeHandler.js';
 
 class IOCHunterApp {
   constructor() {
     this.analyzer = new IOCAnalyzer();
     this.fileHandler = new FileHandler();
     this.ui = new UIController();
+    this.darkModeHandler = new DarkModeHandler();
     
     this.init();
   }
@@ -23,6 +25,7 @@ class IOCHunterApp {
     this.ui.bindTestLogToggle((e) => this.handleTestLogToggle(e));
     this.ui.bindLoadSampleHandler(() => this.handleLoadSample());
     
+    this.darkModeHandler.init();
     this.loadSampleList();
   }
 

@@ -10,7 +10,8 @@ export class UIController {
       useTestLog: document.getElementById('useTestLog'),
       testLoader: document.getElementById('testLoader'),
       sampleSelector: document.getElementById('sampleSelector'),
-      loadSample: document.getElementById('loadSample')
+      loadSample: document.getElementById('loadSample'),
+      darkModeToggle: document.getElementById('darkModeToggle')
     };
   }
 
