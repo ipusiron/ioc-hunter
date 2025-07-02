@@ -66,24 +66,46 @@ class IOCHunterApp {
   }
 
   handleAnalyze() {
-    const inputText = this.ui.getInputText();
-    const { stats, highlighted } = this.analyzer.analyze(inputText);
-    const statsHTML = this.analyzer.generateStatsHTML(stats);
-    
-    // 基本的な統計とハイライト表示
-    this.ui.displayStats(statsHTML);
-    this.ui.displayResults(stats, highlighted);
-    
-    // グラフを描画
-    this.chartRenderer.render(stats);
-    
-    // 高度な分析を実行
-    this.performAdvancedAnalysis(inputText, stats);
-    
-    // エクスポート用にstatsを保存し、セクションを表示
-    this.exportHandler.setStats(stats);
-    this.ui.showExportSection();
-    this.ui.showResultsSection();
+    try {
+      const inputText = this.ui.getInputText();
+      
+      if (!inputText.trim()) {
+        this.ui.showError('分析するテキストを入力してください。');
+        return;
+      }
+      
+      console.log('Starting analysis...'); // デバッグ用
+      
+      const { stats, highlighted } = this.analyzer.analyze(inputText);
+      const statsHTML = this.analyzer.generateStatsHTML(stats);
+      
+      console.log('Analysis completed:', stats); // デバッグ用
+      
+      // 基本的な統計とハイライト表示
+      this.ui.displayStats(statsHTML);
+      this.ui.displayResults(stats, highlighted);
+      
+      // グラフを描画
+      this.chartRenderer.render(stats);
+      
+      // エクスポート用にstatsを保存し、セクションを表示
+      this.exportHandler.setStats(stats);
+      this.ui.showExportSection();
+      this.ui.showResultsSection();
+      
+      console.log('Basic display completed'); // デバッグ用
+      
+      // 高度な分析を実行（表示の後に実行してエラーを防ぐ）
+      try {
+        this.performAdvancedAnalysis(inputText, stats);
+        console.log('Advanced analysis completed'); // デバッグ用
+      } catch (error) {
+        console.error('Advanced analysis error:', error);
+      }
+    } catch (error) {
+      console.error('Analysis error:', error);
+      this.ui.showError(`分析中にエラーが発生しました: ${error.message}`);
+    }
   }
 
   performAdvancedAnalysis(inputText, stats) {
@@ -102,9 +124,11 @@ class IOCHunterApp {
     const detailedStats = this.analysisEngine.generateDetailedStats();
     const detailedHTML = this.tabManager.generateDetailedStatsHTML(detailedStats);
     
-    // 既存の統計の下に詳細統計を追加
+    // 既存の統計の下に詳細統計を追加（安全に）
     const statsArea = document.getElementById('statsArea');
-    statsArea.innerHTML += detailedHTML;
+    if (statsArea && detailedHTML) {
+      statsArea.innerHTML += detailedHTML;
+    }
   }
 
   async handleFileSelect(event) {

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug IOC Hunter</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; background: #ffe6e6; padding: 10px; margin: 10px 0; }
+        .success { color: green; background: #e6ffe6; padding: 10px; margin: 10px 0; }
+        textarea { width: 100%; height: 200px; }
+    </style>
+</head>
+<body>
+    <h1>IOC Hunter Debug</h1>
+    
+    <div id="status"></div>
+    
+    <textarea id="testInput" placeholder="Enter test text here...">
+This is a test log with:
+- IP address: 192.168.1.1
+- Domain: example.com
+- Flag: flag{test_flag}
+- CTF Flag: CTF{another_test}
+- Hash: d41d8cd98f00b204e9800998ecf8427e
+    </textarea>
+    
+    <button onclick="testAnalysis()">Test Analysis</button>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { CONFIG } from './js/config.js';
+        import { IOCAnalyzer } from './js/iocAnalyzer.js';
+        
+        window.CONFIG = CONFIG;
+        window.IOCAnalyzer = IOCAnalyzer;
+        
+        console.log('Modules loaded successfully');
+        console.log('CONFIG.PATTERNS:', CONFIG.PATTERNS);
+        
+        document.getElementById('status').innerHTML = '<div class="success">✓ Modules loaded successfully</div>';
+        
+        window.testAnalysis = function() {
+            try {
+                const analyzer = new IOCAnalyzer();
+                const text = document.getElementById('testInput').value;
+                
+                console.log('Testing with text:', text);
+                
+                const result = analyzer.analyze(text);
+                
+                console.log('Analysis result:', result);
+                
+                document.getElementById('results').innerHTML = `
+                    <h3>Analysis Results:</h3>
+                    <pre>${JSON.stringify(result.stats, null, 2)}</pre>
+                    <h3>Highlighted Text:</h3>
+                    <div>${result.highlighted}</div>
+                `;
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                document.getElementById('results').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        };
+        
+    </script>
+</body>
+</html>

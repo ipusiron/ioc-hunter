@@ -90,6 +90,26 @@ IOCハンターは、CTFのフォレンジックやログ解析系問題で特�
 - **関連性分析による隠れた手がかりの発見**
     - IOC間の関連性から攻撃者のインフラストラクチャを推測
 
+#### 🚩 CTFフラグ検出について
+
+**対応フラグ形式:**
+- 一般的な形式: `flag{content}`, `FLAG{CONTENT}`
+- プラットフォーム別: `CTF{}`, `picoCTF{}`, `hacktheBox{}`, `TryHackMe{}`
+- 短縮形式: `HTB{}`, `THM{}`
+
+**検出例:**
+```
+flag{this_is_a_sample_flag}
+CTF{another_example_flag}
+picoCTF{pico_flag_example}
+hacktheBox{htb_challenge_flag}
+TryHackMe{thm_room_flag}
+HTB{short_format}
+THM{short_format}
+```
+
+フラグは赤色でハイライト表示され、統計情報や分析結果にも含まれます。
+
 ### 実務での活用例（SOC・インシデント対応など）
 
 **脅威ハンティング**
@@ -186,27 +206,6 @@ IOCハンターは、CTFのフォレンジックやログ解析系問題で特�
 - **CTFフラグ形式追加**: `config.js`のflagパターンに新しいプラットフォーム形式を追加
 - **サンプルログ追加**: `samples/`ディレクトリにファイル追加後、`samples/list.txt`を更新
 - **スタイル変更**: `css/style.css`でテーマ・色彩をカスタマイズ
-
-## 🚩 CTFフラグ検出について
-
-**対応フラグ形式:**
-- 一般的な形式: `flag{content}`, `FLAG{CONTENT}`
-- プラットフォーム別: `CTF{}`, `picoCTF{}`, `hacktheBox{}`, `TryHackMe{}`
-- 短縮形式: `HTB{}`, `THM{}`
-
-**検出例:**
-```
-flag{this_is_a_sample_flag}
-CTF{another_example_flag}
-picoCTF{pico_flag_example}
-hacktheBox{htb_challenge_flag}
-TryHackMe{thm_room_flag}
-HTB{short_format}
-THM{short_format}
-```
-
-フラグは赤色でハイライト表示され、統計情報や分析結果にも含まれます。
-
 
 ---
 

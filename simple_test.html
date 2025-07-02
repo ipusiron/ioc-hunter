@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple IOC Test</title>
+</head>
+<body>
+    <h1>Simple IOC Test</h1>
+    <button onclick="test()">Test Flag Detection</button>
+    <div id="output"></div>
+    
+    <script>
+        function test() {
+            const patterns = {
+                ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
+                flag: /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm|FLAG|CTF|PICOCTF|HACKTHEBOX|TRYHACKME|HTB|THM)\{[^}]+\}/g
+            };
+            
+            const testText = "Here is 192.168.1.1 and flag{test_flag} and CTF{example}";
+            
+            const results = {};
+            for (const [type, regex] of Object.entries(patterns)) {
+                const matches = [...testText.matchAll(regex)].map(m => m[0]);
+                results[type] = {
+                    total: matches.length,
+                    items: [...new Set(matches)]
+                };
+            }
+            
+            document.getElementById('output').innerHTML = `
+                <h3>Test Text:</h3>
+                <p>${testText}</p>
+                <h3>Results:</h3>
+                <pre>${JSON.stringify(results, null, 2)}</pre>
+            `;
+            
+            console.log('Results:', results);
+        }
+    </script>
+</body>
+</html>

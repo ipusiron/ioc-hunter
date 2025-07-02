@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flag Pattern Test</title>
+</head>
+<body>
+    <div id="output"></div>
+    <script>
+        const flagRegex = /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm|FLAG|CTF|PICOCTF|HACKTHEBOX|TRYHACKME|HTB|THM)\{[^}]+\}/g;
+        
+        const testText = `
+            This is a test with flag{sample_flag}
+            And another CTF{test_flag}
+            Also picoCTF{pico_example}
+            Some normal text 192.168.1.1
+            And HTB{htb_flag}
+        `;
+        
+        const matches = testText.match(flagRegex);
+        
+        document.getElementById('output').innerHTML = `
+            <h3>Test Results:</h3>
+            <p>Test text: <pre>${testText}</pre></p>
+            <p>Matches found: ${matches ? matches.length : 0}</p>
+            <p>Matches: ${matches ? matches.join(', ') : 'None'}</p>
+        `;
+        
+        console.log('Flag regex test results:', matches);
+    </script>
+</body>
+</html>
