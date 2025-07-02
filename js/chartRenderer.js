@@ -173,17 +173,23 @@ export class ChartRenderer {
     this.ctx.font = '12px sans-serif';
     const legendY = 15;
     
+    // サンプル色を使用（最初に見つかったIOCタイプの色）
+    const sampleColor = data.length > 0 ? data[0].color : axisColor;
+    
     // 総数の凡例
-    this.ctx.fillStyle = axisColor;
+    this.ctx.fillStyle = sampleColor;
     this.ctx.globalAlpha = 0.8;
     this.ctx.fillRect(this.canvas.width - 150, legendY, 15, 15);
     this.ctx.globalAlpha = 1.0;
+    this.ctx.fillStyle = axisColor;
     this.ctx.fillText('総数', this.canvas.width - 130, legendY + 12);
     
     // ユニーク数の凡例
+    this.ctx.fillStyle = sampleColor;
     this.ctx.globalAlpha = 0.5;
     this.ctx.fillRect(this.canvas.width - 80, legendY, 15, 15);
     this.ctx.globalAlpha = 1.0;
+    this.ctx.fillStyle = axisColor;
     this.ctx.fillText('ユニーク', this.canvas.width - 60, legendY + 12);
   }
 }
