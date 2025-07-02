@@ -2,9 +2,23 @@
 
 **Day16 - 生成AIで作るセキュリティツール100**
 
-**IOCハンター（IOC Hunter）**は、ログファイルやテキストデータの中からIOC（Indicator of Compromise：侵害の痕跡）を自動で抽出・色分け表示してくれるWebツールです。
+**IOCハンター（IOC Hunter）** は、ログファイルやテキストデータの中からIOC（Indicator of Compromise：侵害の痕跡）を自動で抽出・色分け表示してくれるWebツールです。
 
 IPアドレス、ドメイン名、メールアドレス、ハッシュ値（MD5/SHA系）などを検出し、種類ごとに色分けして視覚的にわかりやすくハイライトします。
+
+## 🌐 デモページ
+
+👉 [https://ipusiron.github.io/ioc-hunter/](https://ipusiron.github.io/ioc-hunter/) 
+
+---
+
+## 📸 スクリーンショット
+
+以下は実際の画面例です。
+
+>![ダミー](assets/screenshot.png)
+>
+> *ダミー*
 
 ---
 
