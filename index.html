@@ -9,9 +9,14 @@
   <body>
     <div class="header-container">
       <h1>🕵️ IOCハンター（IOC Hunter）</h1>
-      <button id="darkModeToggle" class="dark-mode-toggle" aria-label="ダークモード切り替え">
-        <span class="dark-mode-icon"></span>
-      </button>
+      <div class="header-buttons">
+        <button id="helpButton" class="help-button" aria-label="ヘルプを表示">
+          <span class="help-icon">❓</span>
+        </button>
+        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="ダークモード切り替え">
+          <span class="dark-mode-icon"></span>
+        </button>
+      </div>
     </div>
 
     <div id="fileDropArea">
@@ -78,6 +83,23 @@
     <div id="statsArea"></div>
     <h3>📝 抽出結果</h3>
     <div id="outputArea"></div>
+
+    <!-- ヘルプモーダル -->
+    <div id="helpModal" class="modal" style="display: none;">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>🕵️ IOCハンター ヘルプ</h2>
+            <button id="closeHelp" class="close-button" aria-label="ヘルプを閉じる">×</button>
+          </div>
+          <div class="modal-body">
+            <div id="helpContent">
+              <!-- ヘルプコンテンツはJavaScriptで動的に生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="js/script.js"></script>
 

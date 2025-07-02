@@ -6,6 +6,7 @@ import { DarkModeHandler } from './darkModeHandler.js';
 import { ExportHandler } from './exportHandler.js';
 import { ChartRenderer } from './chartRenderer.js';
 import { WhitelistManager } from './whitelistManager.js';
+import { HelpModal } from './helpModal.js';
 
 class IOCHunterApp {
   constructor() {
@@ -16,6 +17,7 @@ class IOCHunterApp {
     this.exportHandler = new ExportHandler();
     this.chartRenderer = new ChartRenderer();
     this.whitelistManager = new WhitelistManager();
+    this.helpModal = new HelpModal();
     
     this.init();
   }
