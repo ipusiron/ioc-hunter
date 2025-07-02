@@ -16,9 +16,13 @@
 
 以下は実際の画面例です。
 
->![ダミー](assets/screenshot.png)
+>![テスト用のApacheログファイルを解析したところ](assets/screenshot1.png)
 >
-> *ダミー*
+> *テスト用のApacheログファイルを解析したところ*
+
+>![解析結果のIOC一覧](assets/screenshot2.png)
+>
+> *解析結果のIOC一覧*
 
 ---
 
