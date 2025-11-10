@@ -1,3 +1,5 @@
+import { escapeHtml } from './config.js';
+
 export class TabManager {
   constructor() {
     this.activeTab = 'overview';
@@ -91,7 +93,7 @@ export class TabManager {
   }
 
   renderCorrelation(correlation) {
-    const strengthClass = typeof correlation.strength === 'number' 
+    const strengthClass = typeof correlation.strength === 'number'
       ? (correlation.strength > 0.7 ? 'high' : correlation.strength > 0.4 ? 'medium' : 'low')
       : correlation.strength;
 
@@ -105,17 +107,17 @@ export class TabManager {
             </div>
             <div class="correlation-details">
               <div class="ioc-pair">
-                <span class="ioc-item ${correlation.ioc1.type}">${correlation.ioc1.value}</span>
+                <span class="ioc-item ${correlation.ioc1.type}">${escapeHtml(correlation.ioc1.value)}</span>
                 <span class="relation-symbol">↔</span>
-                <span class="ioc-item ${correlation.ioc2.type}">${correlation.ioc2.value}</span>
+                <span class="ioc-item ${correlation.ioc2.type}">${escapeHtml(correlation.ioc2.value)}</span>
               </div>
               <div class="context">
-                <small>行 ${correlation.lineNumber}: ${correlation.context}</small>
+                <small>行 ${correlation.lineNumber}: ${escapeHtml(correlation.context)}</small>
               </div>
             </div>
           </div>
         `;
-        
+
       case 'domain_ip_relation':
         return `
           <div class="correlation-item ${strengthClass}">
@@ -125,9 +127,9 @@ export class TabManager {
             </div>
             <div class="correlation-details">
               <div class="ioc-pair">
-                <span class="ioc-item domain">${correlation.domain}</span>
+                <span class="ioc-item domain">${escapeHtml(correlation.domain)}</span>
                 <span class="relation-symbol">→</span>
-                <span class="ioc-item ipv4">${correlation.ip}</span>
+                <span class="ioc-item ipv4">${escapeHtml(correlation.ip)}</span>
               </div>
               <div class="context">
                 <small>行 ${correlation.lineNumber}: 距離 ${correlation.proximity}文字</small>
@@ -135,7 +137,7 @@ export class TabManager {
             </div>
           </div>
         `;
-        
+
       case 'file_hash_relation':
         return `
           <div class="correlation-item ${strengthClass}">
@@ -145,27 +147,27 @@ export class TabManager {
             </div>
             <div class="correlation-details">
               <div class="ioc-pair">
-                <span class="ioc-item filePath">${correlation.filePath}</span>
+                <span class="ioc-item filePath">${escapeHtml(correlation.filePath)}</span>
                 <span class="relation-symbol">→</span>
-                <span class="ioc-item hash">${correlation.hash}</span>
+                <span class="ioc-item hash">${escapeHtml(correlation.hash)}</span>
               </div>
               <div class="context">
-                <small>行 ${correlation.lineNumber}: ${correlation.context}</small>
+                <small>行 ${correlation.lineNumber}: ${escapeHtml(correlation.context)}</small>
               </div>
             </div>
           </div>
         `;
-        
+
       default:
         return `
           <div class="correlation-item ${strengthClass}">
             <div class="correlation-header">
-              <span class="correlation-type">${correlation.type}</span>
+              <span class="correlation-type">${escapeHtml(correlation.type)}</span>
               <span class="strength-badge ${strengthClass}">${strengthClass}</span>
             </div>
             <div class="correlation-details">
               <div class="context">
-                <small>行 ${correlation.lineNumber}: ${correlation.context}</small>
+                <small>行 ${correlation.lineNumber}: ${escapeHtml(correlation.context)}</small>
               </div>
             </div>
           </div>
@@ -176,12 +178,12 @@ export class TabManager {
   renderTimelineGroup(group) {
     const severityClass = group.severity;
     const startTime = new Date(group.startTime).toLocaleString('ja-JP');
-    
+
     return `
       <div class="timeline-group ${severityClass}">
         <div class="timeline-header">
-          <div class="timeline-time">${startTime}</div>
-          <div class="severity-badge ${severityClass}">${group.severity}</div>
+          <div class="timeline-time">${escapeHtml(startTime)}</div>
+          <div class="severity-badge ${severityClass}">${escapeHtml(group.severity)}</div>
           <div class="event-count">${group.events.length} events</div>
         </div>
         <div class="timeline-events">
@@ -190,10 +192,10 @@ export class TabManager {
               <div class="event-line">行 ${event.lineNumber}</div>
               <div class="event-iocs">
                 ${event.iocs.map(ioc => `
-                  <span class="ioc-tag ${ioc.type}">${ioc.value}</span>
+                  <span class="ioc-tag ${ioc.type}">${escapeHtml(ioc.value)}</span>
                 `).join('')}
               </div>
-              <div class="event-context">${event.line}</div>
+              <div class="event-context">${escapeHtml(event.line)}</div>
             </div>
           `).join('')}
         </div>
@@ -251,7 +253,7 @@ export class TabManager {
             <div class="repeated-iocs">
               ${patterns.repeatedIOCs.slice(0, 10).map(item => `
                 <div class="repeated-item">
-                  <span class="ioc-item ${item.type}">${item.ioc}</span>
+                  <span class="ioc-item ${item.type}">${escapeHtml(item.ioc)}</span>
                   <span class="count-badge">${item.count}回</span>
                 </div>
               `).join('')}
@@ -265,8 +267,8 @@ export class TabManager {
             <div class="risks-list">
               ${risks.map(risk => `
                 <div class="risk-item ${risk.level}">
-                  <span class="risk-level">${risk.level}</span>
-                  <span class="risk-description">${risk.description}</span>
+                  <span class="risk-level">${escapeHtml(risk.level)}</span>
+                  <span class="risk-description">${escapeHtml(risk.description)}</span>
                 </div>
               `).join('')}
             </div>

@@ -25,3 +25,22 @@ export const CONFIG = {
     FILE_LOAD_ERROR: 'ファイル読み込みに失敗しました'
   }
 };
+
+/**
+ * HTMLエスケープユーティリティ
+ * XSS攻撃を防ぐため、HTMLの特殊文字をエスケープ
+ */
+export function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/**
+ * 複数行テキストの各行をエスケープ
+ */
+export function escapeHtmlMultiline(text) {
+  if (typeof text !== 'string') return '';
+  return text.split('\n').map(line => escapeHtml(line)).join('\n');
+}

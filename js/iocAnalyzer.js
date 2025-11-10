@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG, escapeHtml, escapeHtmlMultiline } from './config.js';
 
 export class IOCAnalyzer {
   constructor() {
@@ -45,19 +45,23 @@ export class IOCAnalyzer {
   }
 
   highlightIOCs(text) {
-    let highlighted = text;
-    
+    // 【セキュリティ】まずテキスト全体をエスケープしてXSSを防ぐ
+    let highlighted = escapeHtmlMultiline(text);
+
+    // エスケープ後のテキストでIOCを検出してハイライト
+    // IOC値は既にエスケープ済みなので安全にspanタグで囲める
     for (const [type, regex] of Object.entries(this.patterns)) {
       highlighted = highlighted.replace(regex, (match) => {
         // ホワイトリストに含まれる場合はハイライトしない
-        if (this.whitelistManager && this.whitelistManager.isEnabled() && 
+        if (this.whitelistManager && this.whitelistManager.isEnabled() &&
             this.whitelistManager.contains(match)) {
           return match;
         }
+        // matchは既にエスケープ済みなので、そのままspanで囲む
         return `<span class="ioc ${type}">${match}</span>`;
       });
     }
-    
+
     return highlighted;
   }
 
