@@ -1,3 +1,41 @@
+<!--
+---
+id: day016
+slug: ioc-hunter
+
+title: "IOC Hunter"
+
+subtitle_ja: "ログから侵害の痕跡を自動検出・可視化"
+subtitle_en: "Automatically detect and visualize Indicators of Compromise from logs"
+
+description_ja: "ログファイルやテキストデータからIOC（侵害の痕跡）を自動抽出し、12種類のIOCタイプを色分けハイライト表示するWebツール。関連性分析、タイムライン解析、詳細統計機能を搭載し、本格的な脅威分析が可能。ブラウザ完結でプライバシーに配慮。"
+description_en: "A web tool that automatically extracts IOCs (Indicators of Compromise) from log files and text data, highlighting 12 types of IOCs with color coding. Features include relationship analysis, timeline analysis, and detailed statistics for comprehensive threat analysis. All processing is done client-side for privacy."
+
+category_ja:
+  - 脅威インテリジェンス
+  - ログ解析
+  - フォレンジック
+category_en:
+  - Threat Intelligence
+  - Log Analysis
+  - Forensics
+
+difficulty: 2
+
+tags:
+  - IOC
+  - ログ解析
+  - フォレンジック
+  - 脅威ハンティング
+  - CTF
+
+repo_url: "https://github.com/ipusiron/ioc-hunter"
+demo_url: "https://ipusiron.github.io/ioc-hunter/"
+
+hub: true
+---
+-->
+
 # IOCハンター（IOC Hunter）
 
 **Day16 - 生成AIで作るセキュリティツール100**
