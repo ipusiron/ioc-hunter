@@ -9,7 +9,7 @@ const expected = {
   'apache.txt': { url: [1, 1], email: [1, 1], ipv4: [10, 7], hash: [1, 1] },
   'auth.log': { ipv4: [8, 8], filePath: [2, 2] },
   'dns.log': { ipv4: [20, 4], domain: [8, 8] },
-  'mail.log': { email: [5, 4], domain: [4, 2] },
+  'mail.log': { email: [5, 4], domain: [4, 2], ipv4: [6, 3] },
   'proxy.log': { url: [10, 10], ipv4: [10, 8] }
 };
 for (const [file, counts] of Object.entries(expected)) {
