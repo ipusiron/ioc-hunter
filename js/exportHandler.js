@@ -1,15 +1,30 @@
+import { defang, urlHost } from './scanner.js';
+
+export function csvCell(value) {
+  let text = String(value);
+  if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
 export class ExportHandler {
-  constructor() {
+  // i18n を渡さない場合はキーをそのまま返す（Nodeのテストから読めるように）
+  constructor(i18n = null) {
+    this.i18n = i18n;
     this.currentStats = null;
+  }
+
+  t(key, values) {
+    return this.i18n ? this.i18n.t(key, values) : key;
   }
 
   setStats(stats) {
     this.currentStats = stats;
   }
 
-  export(format) {
+  export(format, useDefang = false) {
+    this.useDefang = useDefang;
     if (!this.currentStats) {
-      throw new Error('エクスポートするデータがありません');
+      throw new Error(this.t('error.noExportData'));
     }
 
     switch (format) {
@@ -20,7 +35,7 @@ export class ExportHandler {
       case 'txt':
         return this.exportTXT();
       default:
-        throw new Error('サポートされていない形式です');
+        throw new Error(this.t('error.unsupportedFormat'));
     }
   }
 
@@ -35,7 +50,9 @@ export class ExportHandler {
       data.iocs[type] = {
         total: info.total,
         unique: info.unique,
-        items: info.items
+        items: info.items.map(value => type === 'url'
+          ? { value: this.outputValue(value, type), host: this.outputValue(urlHost(value), 'domain') }
+          : this.outputValue(value, type))
       };
     }
 
@@ -48,28 +65,25 @@ export class ExportHandler {
 
   exportCSV() {
     const rows = [
-      ['IOCタイプ', 'IOC値', '総数', 'ユニーク数']
+      [this.t('file.csvHeader.type'), this.t('file.csvHeader.value'),
+        this.t('file.csvHeader.total'), this.t('file.csvHeader.unique')]
     ];
 
     for (const [type, info] of Object.entries(this.currentStats)) {
       if (info.items.length === 0) {
-        rows.push([type, '(なし)', info.total, info.unique]);
+        rows.push([type, this.t('file.csvEmpty'), info.total, info.unique]);
       } else {
         info.items.forEach((item, index) => {
           if (index === 0) {
-            rows.push([type, item, info.total, info.unique]);
+            rows.push([type, this.outputValue(item, type), info.total, info.unique]);
           } else {
-            rows.push(['', item, '', '']);
+            rows.push(['', this.outputValue(item, type), '', '']);
           }
         });
       }
     }
 
-    const csv = rows.map(row => 
-      row.map(cell => 
-        typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
-      ).join(',')
-    ).join('\n');
+    const csv = rows.map(row => row.map(csvCell).join(',')).join('\r\n');
 
     return {
       content: '\uFEFF' + csv, // BOM付きでExcelでの文字化けを防ぐ
@@ -79,25 +93,25 @@ export class ExportHandler {
   }
 
   exportTXT() {
-    let text = `IOC抽出結果\n`;
-    text += `抽出日時: ${new Date().toLocaleString('ja-JP')}\n`;
+    let text = `${this.t('file.txtTitle')}\n`;
+    text += `${this.t('file.txtDate')}: ${new Date().toISOString()}\n`;
     text += `${'='.repeat(50)}\n\n`;
 
     const summary = this.getSummary();
-    text += `サマリー:\n`;
-    text += `  総IOC数: ${summary.totalIOCs}\n`;
-    text += `  ユニークIOC数: ${summary.uniqueIOCs}\n\n`;
+    text += `${this.t('file.txtSummary')}:\n`;
+    text += `  ${this.t('file.txtTotal')}: ${summary.totalIOCs}\n`;
+    text += `  ${this.t('file.txtUnique')}: ${summary.uniqueIOCs}\n\n`;
 
     for (const [type, info] of Object.entries(this.currentStats)) {
       text += `${type.toUpperCase()}\n`;
       text += `${'-'.repeat(30)}\n`;
-      text += `  総数: ${info.total}\n`;
-      text += `  ユニーク数: ${info.unique}\n`;
+      text += `  ${this.t('file.txtTypeTotal')}: ${info.total}\n`;
+      text += `  ${this.t('file.txtTypeUnique')}: ${info.unique}\n`;
       
       if (info.items.length > 0) {
-        text += `  検出項目:\n`;
+        text += `  ${this.t('file.txtItems')}:\n`;
         info.items.forEach(item => {
-          text += `    - ${item}\n`;
+          text += `    - ${this.outputValue(item, type)}\n`;
         });
       }
       text += '\n';
@@ -108,6 +122,10 @@ export class ExportHandler {
       filename: `ioc_results_${this.getTimestamp()}.txt`,
       mimeType: 'text/plain;charset=utf-8'
     };
+  }
+
+  outputValue(value, type) {
+    return this.useDefang ? defang(value, type) : value;
   }
 
   getSummary() {
@@ -127,9 +145,9 @@ export class ExportHandler {
     return now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
   }
 
-  download(format) {
+  download(format, useDefang = false) {
     try {
-      const exportData = this.export(format);
+      const exportData = this.export(format, useDefang);
       const blob = new Blob([exportData.content], { type: exportData.mimeType });
       const url = URL.createObjectURL(blob);
       
@@ -142,7 +160,7 @@ export class ExportHandler {
       
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('ダウンロードエラー:', error);
+      console.error('The download failed.');
       throw error;
     }
   }

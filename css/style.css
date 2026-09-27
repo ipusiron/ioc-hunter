@@ -14,7 +14,7 @@ textarea {
   width: 100%;
   padding: 10px;
   font-family: monospace;
-  font-size: 1em;
+  font-size: 16px;
   box-sizing: border-box;
   margin-bottom: 1em;
 }
@@ -67,7 +67,7 @@ button {
 }
 
 .fileLabel {
-  color: #007bff;
+  color: #006de3;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -200,15 +200,15 @@ body.dark-mode .dark-mode-icon::before {
 
 /* ダークモード用IOCハイライト */
 body.dark-mode .ioc.ipv4 { background: #1e3a5f; color: #64b5f6; }
-body.dark-mode .ioc.ipv6 { background: #1b5e3f; color: #66bb6a; }
+body.dark-mode .ioc.ipv6 { background: #14442e; color: #66bb6a; }
 body.dark-mode .ioc.domain { background: #5d4e37; color: #ffb74d; }
-body.dark-mode .ioc.email { background: #5d1f1f; color: #ef5350; }
-body.dark-mode .ioc.hash { background: #4a148c; color: #ba68c8; }
-body.dark-mode .ioc.url { background: #1b5e20; color: #81c784; }
-body.dark-mode .ioc.filePath { background: #1565c0; color: #64b5f6; }
-body.dark-mode .ioc.registryKey { background: #880e4f; color: #f48fb1; }
-body.dark-mode .ioc.bitcoin { background: #e65100; color: #ffb74d; }
-body.dark-mode .ioc.cve { background: #006064; color: #4dd0e1; }
+body.dark-mode .ioc.email { background: #3c1414; color: #ef5350; }
+body.dark-mode .ioc.hash { background: #2b0c52; color: #ba68c8; }
+body.dark-mode .ioc.url { background: #18521c; color: #81c784; }
+body.dark-mode .ioc.filePath { background: #0d417b; color: #64b5f6; }
+body.dark-mode .ioc.registryKey { background: #7c0d48; color: #f48fb1; }
+body.dark-mode .ioc.bitcoin { background: #8d3200; color: #ffb74d; }
+body.dark-mode .ioc.cve { background: #005457; color: #4dd0e1; }
 body.dark-mode .ioc.mitre { background: #424242; color: #bdbdbd; }
 body.dark-mode .ioc.flag { background: #5d1a1a; color: #ff6b6b; }
 
@@ -234,7 +234,7 @@ body.dark-mode .footer {
 }
 
 .footer a {
-  color: #007bff;
+  color: #006de3;
   text-decoration: none;
 }
 
@@ -278,7 +278,7 @@ body.dark-mode #exportFormat {
 #downloadButton {
   padding: 8px 16px;
   font-size: 0.95em;
-  background: #28a745;
+  background: #208637;
   color: white;
   border: none;
   border-radius: 4px;
@@ -295,7 +295,7 @@ body.dark-mode #downloadButton {
 }
 
 body.dark-mode #downloadButton:hover {
-  background: #388e3c;
+  background: #2e7d32;
 }
 
 /* グラフコンテナ */
@@ -332,7 +332,7 @@ body.dark-mode #whitelistSection {
   border-color: #444;
 }
 
-#whitelistSection h3 {
+#whitelistSection h2 {
   margin-top: 0;
   margin-bottom: 1em;
 }
@@ -348,9 +348,10 @@ body.dark-mode #whitelistSection {
 }
 
 #whitelistInput {
+  min-width: 0;
   flex: 1;
   padding: 8px;
-  font-size: 14px;
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
@@ -364,7 +365,7 @@ body.dark-mode #whitelistInput {
 #addWhitelistButton {
   padding: 8px 16px;
   font-size: 14px;
-  background: #007bff;
+  background: #0071eb;
   color: white;
   border: none;
   border-radius: 4px;
@@ -438,7 +439,9 @@ body.dark-mode .whitelist-item {
 }
 
 .remove-btn {
-  background: #dc3545;
+  min-width: 44px;
+  min-height: 32px;
+  background: #b92535;
   color: white;
   border: none;
   border-radius: 3px;
@@ -452,7 +455,7 @@ body.dark-mode .whitelist-item {
 }
 
 .filtered-count {
-  color: #dc3545;
+  color: #da2839;
   font-size: 0.9em;
 }
 
@@ -488,6 +491,33 @@ body.dark-mode .help-button {
 }
 
 body.dark-mode .help-button:hover {
+  background: #333;
+}
+
+/* 言語切り替えボタン。英語のほうが語が長いので折り返さず幅を許す */
+.lang-toggle {
+  background: transparent;
+  border: 2px solid #666;
+  border-radius: 20px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.9em;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.lang-toggle:hover {
+  background: #f0f0f0;
+}
+
+body.dark-mode .lang-toggle {
+  border-color: #e0e0e0;
+  color: #e0e0e0;
+}
+
+body.dark-mode .lang-toggle:hover {
   background: #333;
 }
 
@@ -630,6 +660,9 @@ body.dark-mode .help-section h4 {
 .help-section li {
   margin-bottom: 0.3em;
   line-height: 1.5;
+  /* URLやBitcoinアドレスは狭い画面で折り返せず、320pxではみ出していた */
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .ioc-types {
@@ -637,6 +670,11 @@ body.dark-mode .help-section h4 {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5em;
   margin: 1em 0;
+}
+
+/* min-width が auto のままだと、列が中身の最小幅まで広がって狭い画面ではみ出す */
+.ioc-type-group {
+  min-width: 0;
 }
 
 .ioc-type-group ul {
@@ -670,15 +708,15 @@ body.dark-mode .help-section h4 {
 
 /* ダークモード用IOCサンプル */
 body.dark-mode .ioc-sample.ipv4 { background: #1e3a5f; color: #64b5f6; }
-body.dark-mode .ioc-sample.ipv6 { background: #1b5e3f; color: #66bb6a; }
+body.dark-mode .ioc-sample.ipv6 { background: #14442e; color: #66bb6a; }
 body.dark-mode .ioc-sample.domain { background: #5d4e37; color: #ffb74d; }
-body.dark-mode .ioc-sample.email { background: #5d1f1f; color: #ef5350; }
-body.dark-mode .ioc-sample.hash { background: #4a148c; color: #ba68c8; }
-body.dark-mode .ioc-sample.url { background: #1b5e20; color: #81c784; }
-body.dark-mode .ioc-sample.filePath { background: #1565c0; color: #64b5f6; }
-body.dark-mode .ioc-sample.registryKey { background: #880e4f; color: #f48fb1; }
-body.dark-mode .ioc-sample.bitcoin { background: #e65100; color: #ffb74d; }
-body.dark-mode .ioc-sample.cve { background: #006064; color: #4dd0e1; }
+body.dark-mode .ioc-sample.email { background: #3c1414; color: #ef5350; }
+body.dark-mode .ioc-sample.hash { background: #2b0c52; color: #ba68c8; }
+body.dark-mode .ioc-sample.url { background: #18521c; color: #81c784; }
+body.dark-mode .ioc-sample.filePath { background: #0d417b; color: #64b5f6; }
+body.dark-mode .ioc-sample.registryKey { background: #7c0d48; color: #f48fb1; }
+body.dark-mode .ioc-sample.bitcoin { background: #8d3200; color: #ffb74d; }
+body.dark-mode .ioc-sample.cve { background: #005457; color: #4dd0e1; }
 body.dark-mode .ioc-sample.mitre { background: #424242; color: #bdbdbd; }
 body.dark-mode .ioc-sample.flag { background: #5d1a1a; color: #ff6b6b; }
 
@@ -711,13 +749,13 @@ body.dark-mode .tab-buttons {
 }
 
 .tab-button:hover {
-  color: #007bff;
+  color: #006de3;
   background: #f8f9fa;
 }
 
 .tab-button.active {
-  color: #007bff;
-  border-bottom-color: #007bff;
+  color: #006de3;
+  border-bottom-color: #006de3;
   font-weight: bold;
 }
 
@@ -777,7 +815,7 @@ body.dark-mode .stat-card h4 {
 .stat-value {
   font-size: 1.5em;
   font-weight: bold;
-  color: #007bff;
+  color: #006de3;
 }
 
 body.dark-mode .stat-value {
@@ -844,7 +882,7 @@ body.dark-mode .correlation-type {
 }
 
 .strength-badge.high {
-  background: #dc3545;
+  background: #b92535;
   color: white;
 }
 
@@ -854,7 +892,7 @@ body.dark-mode .correlation-type {
 }
 
 .strength-badge.low {
-  background: #28a745;
+  background: #208637;
   color: white;
 }
 
@@ -952,12 +990,12 @@ body.dark-mode .timeline-group {
 }
 
 .severity-badge.critical {
-  background: #dc3545;
+  background: #b92535;
   color: white;
 }
 
 .severity-badge.high {
-  background: #fd7e14;
+  background: #b64700;
   color: white;
 }
 
@@ -967,7 +1005,7 @@ body.dark-mode .timeline-group {
 }
 
 .severity-badge.low {
-  background: #28a745;
+  background: #208637;
   color: white;
 }
 
@@ -1081,19 +1119,19 @@ body.dark-mode .summary-item .value {
 }
 
 .value.risk-critical {
-  color: #dc3545;
+  color: #b92535;
 }
 
 .value.risk-high {
-  color: #fd7e14;
+  color: #b64700;
 }
 
 .value.risk-medium {
-  color: #ffc107;
+  color: #856404;
 }
 
 .value.risk-low {
-  color: #28a745;
+  color: #17662a;
 }
 
 .distribution-grid {
@@ -1160,7 +1198,7 @@ body.dark-mode .repeated-item {
 }
 
 .count-badge {
-  background: #007bff;
+  background: #0071eb;
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
@@ -1277,5 +1315,72 @@ body.dark-mode .no-data {
   .ioc-pair {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* 入力・キーボード操作・狭い画面の保護 */
+[hidden] {
+  display: none !important;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+:focus-visible {
+  outline: 3px solid #006de3;
+  outline-offset: 3px;
+}
+
+body.dark-mode :focus-visible {
+  outline-color: #4fc3f7;
+}
+
+#outputArea pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.export-controls, .whitelist-input-group {
+  flex-wrap: wrap;
+}
+
+#sampleSelector {
+  max-width: 100%;
+}
+
+.context, .event-context, .ioc-item, .whitelist-item span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+#statsArea > ul {
+  columns: 2;
+}
+
+body.dark-mode .filtered-count, body.dark-mode .limit-warning {
+  color: #ffb3bc;
+}
+
+.limit-warning {
+  color: #a31727;
+}
+
+@media (max-width: 480px) {
+  #statsArea > ul {
+    columns: 1;
+  }
+
+  .distribution-item {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

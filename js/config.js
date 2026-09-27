@@ -1,3 +1,12 @@
+// Candidate patterns; semantic validation and overlap resolution live in scanner.js.
+const DOT = String.raw`(?:\.|\[\.\]|\(\.\)|\{\.\})`;
+const LABEL = '[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?';
+const DOMAIN = `${LABEL}(?:${DOT}${LABEL})+`;
+const OCTET = '(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)';
+const IPV4 = `${OCTET}(?:${DOT}${OCTET}){3}`;
+const ROOTS = 'etc|var|tmp|usr|home|opt|root|bin|sbin|lib|lib64|proc|dev|srv|mnt|media|boot|run'
+  + '|Users|Applications|Library|System|private|Volumes';
+
 export const CONFIG = {
   FILE: {
     MAX_SIZE_MB: 20,
@@ -5,36 +14,30 @@ export const CONFIG = {
     ALLOWED_EXTENSIONS: ['.txt', '.log']
   },
   PATTERNS: {
-    ipv4: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
-    ipv6: /\b(?:[a-fA-F0-9]{1,4}:){1,7}[a-fA-F0-9]{1,4}\b/g,
-    domain: /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi,
-    email: /\b[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi,
-    hash: /\b[a-fA-F0-9]{32}\b|\b[a-fA-F0-9]{40}\b|\b[a-fA-F0-9]{64}\b/g,
-    url: /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/g,
-    filePath: /(?:[A-Za-z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*)|(?:\/(?:[^\/\0]+\/)*[^\/\0]+)/g,
+    ipv4: new RegExp(`(?<![\\w.]|${DOT})${IPV4}(?![\\w.]|${DOT}\\d)`, 'g'),
+    ipv6: /(?<![\w:])(?:[a-f\d.]|\[\.\]|\(\.\)|\{\.\})*:(?:[a-f\d:.]|\[\.\]|\(\.\)|\{\.\})*(?:%[\w.-]+)?(?![\w:])/gi,
+    domain: new RegExp(`(?<![\\w.-])${DOMAIN}(?![\\w-])`, 'gi'),
+    email: new RegExp(`(?<![\\w.+%-])[a-z0-9._%+-]+(?:@|\\[@\\]|\\(@\\)|\\[at\\])${DOMAIN}(?![\\w-])`, 'gi'),
+    hash: /(?<![a-z\d])(?:[a-f\d]{128}|[a-f\d]{64}|[a-f\d]{40}|[a-f\d]{32})(?![a-z\d])/gi,
+    url: /(?<![\w])(?:https?|hxxps?)(?::\/\/|\[:\/\/\]|\[:\]\/\/)[^\s<>"']+/gi,
+    filePath: new RegExp(String.raw`(?:[A-Za-z]:\\|\\\\)[^\s<>"|?*]+|\/(?:${ROOTS})\/[^\s<>"'|;]+`, 'g'),
     registryKey: /(?:HKEY_(?:CLASSES_ROOT|CURRENT_USER|LOCAL_MACHINE|USERS|CURRENT_CONFIG)|HKLM|HKCU|HKCR|HKU|HKCC)(?:\\[^\\<>:"|?*\r\n]+)*/g,
-    bitcoin: /\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})\b/g,
-    cve: /CVE-\d{4}-\d{4,}/g,
-    mitre: /T\d{4}(?:\.\d{3})?/g,
-    flag: /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm|FLAG|CTF|PICOCTF|HACKTHEBOX|TRYHACKME|HTB|THM)\{[^}]+\}/g,
-  },
-  MESSAGES: {
-    FILE_TOO_LARGE: '⚠ このファイルは20MBを超えているため読み込めません。',
-    INVALID_FILE_TYPE: 'テキストファイル（.txt または .log）を選択してください。',
-    NO_SAMPLE_SELECTED: '読み込むテストログを選択してください。',
-    FILE_LOAD_ERROR: 'ファイル読み込みに失敗しました'
+    bitcoin: /\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[ac-hj-np-z02-9]{39,59})\b/g,
+    cve: /(?<![a-z\d])CVE-\d{4}-\d{4,7}(?![a-z\d])/gi,
+    mitre: /(?<![a-z\d])T\d{4}(?:\.\d{3})?(?![a-z\d.])/gi,
+    flag: /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm)\{[^}\r\n]{0,256}\}/gi,
   }
 };
 
 /**
- * HTMLエスケープユーティリティ
- * XSS攻撃を防ぐため、HTMLの特殊文字をエスケープ
+ * HTMLエスケープのユーティリティー。
+ * XSSを防ぐため、HTMLの特殊文字をエスケープする。
  */
 export function escapeHtml(str) {
   if (typeof str !== 'string') return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  return str.replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[ch]);
 }
 
 /**

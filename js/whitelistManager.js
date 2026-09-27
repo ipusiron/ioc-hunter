@@ -1,3 +1,5 @@
+import { refang } from './scanner.js';
+
 export class WhitelistManager {
   constructor() {
     this.STORAGE_KEY = 'ioc-hunter-whitelist';
@@ -13,8 +15,8 @@ export class WhitelistManager {
   add(ioc) {
     if (!ioc || typeof ioc !== 'string') return false;
     
-    const normalizedIOC = ioc.trim().toLowerCase();
-    if (normalizedIOC.length === 0) return false;
+    const normalizedIOC = refang(ioc).trim().toLowerCase();
+    if (normalizedIOC.length === 0 || this.whitelist.has(normalizedIOC)) return false;
     
     this.whitelist.add(normalizedIOC);
     this.saveToStorage();
@@ -23,7 +25,7 @@ export class WhitelistManager {
   }
 
   remove(ioc) {
-    const normalizedIOC = ioc.trim().toLowerCase();
+    const normalizedIOC = refang(ioc).trim().toLowerCase();
     const deleted = this.whitelist.delete(normalizedIOC);
     if (deleted) {
       this.saveToStorage();
@@ -34,7 +36,7 @@ export class WhitelistManager {
 
   contains(ioc) {
     if (!this.enabled) return false;
-    const normalizedIOC = ioc.trim().toLowerCase();
+    const normalizedIOC = refang(ioc).trim().toLowerCase();
     return this.whitelist.has(normalizedIOC);
   }
 
@@ -63,7 +65,11 @@ export class WhitelistManager {
       whitelist: this.getAll(),
       enabled: this.enabled
     };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Could not save the whitelist.');
+    }
   }
 
   loadFromStorage() {
@@ -75,7 +81,7 @@ export class WhitelistManager {
         this.enabled = data.enabled !== false;
       }
     } catch (error) {
-      console.error('ホワイトリストの読み込みに失敗:', error);
+      console.error('Failed to load the whitelist.');
     }
   }
 
@@ -111,23 +117,5 @@ export class WhitelistManager {
     }
   }
 
-  // デフォルトのホワイトリストエントリ
-  static getDefaultWhitelist() {
-    return [
-      // プライベートIPアドレス
-      '192.168.0.1',
-      '192.168.1.1',
-      '10.0.0.1',
-      '127.0.0.1',
-      'localhost',
-      // 一般的な安全なドメイン
-      'google.com',
-      'microsoft.com',
-      'github.com',
-      // 一般的なメールドメイン
-      'gmail.com',
-      'outlook.com',
-      'yahoo.com'
-    ];
-  }
+
 }

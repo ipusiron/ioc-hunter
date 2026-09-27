@@ -58,12 +58,21 @@ export class DarkModeHandler {
     this.body.classList.remove('dark-mode');
   }
 
+  // ストレージが使えない環境では覚えないだけにして、初期化を止めない
   saveMode(isDark) {
-    localStorage.setItem(this.STORAGE_KEY, isDark.toString());
+    try {
+      localStorage.setItem(this.STORAGE_KEY, isDark.toString());
+    } catch (error) {
+      console.error('Could not remember the theme.');
+    }
   }
 
   getSavedMode() {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
-    return saved === null ? null : saved === 'true';
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      return saved === null ? null : saved === 'true';
+    } catch (error) {
+      return null;
+    }
   }
 }

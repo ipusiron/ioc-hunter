@@ -41,11 +41,11 @@ export class ChartRenderer {
     // データが空の場合は非表示
     const hasData = Object.values(stats).some(s => s.total > 0);
     if (!hasData) {
-      this.chartContainer.style.display = 'none';
+      this.chartContainer.hidden = true;
       return;
     }
 
-    this.chartContainer.style.display = 'block';
+    this.chartContainer.hidden = false;
     
     // ダークモードの判定
     const isDarkMode = document.body.classList.contains('dark-mode');
@@ -62,8 +62,8 @@ export class ChartRenderer {
       }));
     
     // キャンバスのサイズを動的に調整（横棒グラフなので高さを調整）
-    const containerWidth = this.chartContainer.clientWidth;
-    this.canvas.width = Math.min(containerWidth - 20, 700);
+    const containerWidth = this.chartContainer.clientWidth || document.getElementById('resultsSection').clientWidth;
+    this.canvas.width = Math.max(200, Math.min(containerWidth - 20, 700));
     this.canvas.height = Math.max(350, data.length * 40 + 120); // 凡例とマージンを考慮して高さを調整
     
     // キャンバスをクリア
@@ -197,14 +197,17 @@ export class ChartRenderer {
     this.ctx.globalAlpha = 1.0;
     this.ctx.fillStyle = axisColor;
     this.ctx.textAlign = 'left';
-    this.ctx.fillText('総数', legendX + 20, legendY + 12);
+    const totalLabel = window.I18n.t('chart.total');
+    this.ctx.fillText(totalLabel, legendX + 20, legendY + 12);
+    // 英語の語は和文より幅が広いので、2つ目の位置は測って決める
+    const secondX = legendX + 45 + this.ctx.measureText(totalLabel).width;
     
     // ユニーク数の凡例（横並びに配置）
     this.ctx.fillStyle = sampleColor;
     this.ctx.globalAlpha = 0.5;
-    this.ctx.fillRect(legendX + 80, legendY, 15, 15);
+    this.ctx.fillRect(secondX, legendY, 15, 15);
     this.ctx.globalAlpha = 1.0;
     this.ctx.fillStyle = axisColor;
-    this.ctx.fillText('ユニーク', legendX + 100, legendY + 12);
+    this.ctx.fillText(window.I18n.t('chart.unique'), secondX + 20, legendY + 12);
   }
 }

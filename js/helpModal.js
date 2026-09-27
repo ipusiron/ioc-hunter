@@ -1,3 +1,5 @@
+import { escapeHtml } from './config.js';
+
 export class HelpModal {
   constructor() {
     this.modal = document.getElementById('helpModal');
@@ -25,135 +27,156 @@ export class HelpModal {
     
     // ESCキーでモーダルを閉じる
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isVisible()) {
-        this.hide();
+      if (!this.isVisible()) return;
+      if (e.key === 'Escape') this.hide();
+      if (e.key === 'Tab') {
+        const items = [...this.modal.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')];
+        const first = items[0];
+        const last = items.at(-1);
+        if ((e.shiftKey && document.activeElement === first) || (!e.shiftKey && document.activeElement === last)) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        }
       }
     });
     
-    // ヘルプコンテンツを生成
+    // ヘルプコンテンツを生成し、言語を変えたら作り直す
     this.generateHelpContent();
+    document.addEventListener('languagechange', () => this.generateHelpContent());
   }
 
   show() {
-    this.modal.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // スクロールを無効化
-    this.closeButton.focus(); // フォーカスを移動
+    this.previousFocus = document.activeElement;
+    this.modal.hidden = false;
+    this.inertStates = [...document.body.children].filter(item => item !== this.modal)
+      .map(item => [item, item.inert]);
+    this.inertStates.forEach(([item]) => { item.inert = true; });
+    document.body.classList.add('modal-open');
+    this.closeButton.focus(); // フォーカスを移動する
   }
 
   hide() {
-    this.modal.style.display = 'none';
-    document.body.style.overflow = ''; // スクロールを復元
-    this.helpButton.focus(); // フォーカスを戻す
+    this.modal.hidden = true;
+    this.inertStates?.forEach(([item, state]) => { item.inert = state; });
+    document.body.classList.remove('modal-open');
+    (this.previousFocus || this.helpButton).focus();
   }
 
   isVisible() {
-    return this.modal.style.display === 'block';
+    return !this.modal.hidden;
   }
 
+  // 文言は辞書にあり、ここには残さない。
+  // リストは言語を切り替えるたびに作り直す。
   generateHelpContent() {
+    const t = (key) => escapeHtml(window.I18n.t(key));
+    const item = (label, text) => `<li><strong>${t(label)}</strong>: ${t(text)}</li>`;
+    const sample = (type, label, example) =>
+      `<li><span class="ioc-sample ${type}">${t(label)}</span> - ${escapeHtml(example)}</li>`;
     const content = `
       <div class="help-section">
-        <h3>📋 基本的な使い方</h3>
+        <h3>${t('helpDoc.basicHeading')}</h3>
         <ol>
-          <li><strong>テキスト入力</strong>: テキストエリアにログやテキストデータを貼り付け</li>
-          <li><strong>ファイル読み込み</strong>: .txtや.logファイルをドラッグ&ドロップまたは選択</li>
-          <li><strong>解析実行</strong>: 「解析する」ボタンをクリック</li>
-          <li><strong>結果確認</strong>: IOCがハイライトされ、統計とグラフが表示されます</li>
+          ${item('helpDoc.basic1Label', 'helpDoc.basic1')}
+          ${item('helpDoc.basic2Label', 'helpDoc.basic2')}
+          ${item('helpDoc.basic3Label', 'helpDoc.basic3')}
+          ${item('helpDoc.basic4Label', 'helpDoc.basic4')}
         </ol>
       </div>
 
       <div class="help-section">
-        <h3>🎯 検出できるIOCタイプ</h3>
+        <h3>${t('helpDoc.typesHeading')}</h3>
         <div class="ioc-types">
           <div class="ioc-type-group">
-            <h4>ネットワーク関連</h4>
+            <h4>${t('helpDoc.typesNetwork')}</h4>
             <ul>
               <li><span class="ioc-sample ipv4">IPv4</span> - 192.168.1.1</li>
               <li><span class="ioc-sample ipv6">IPv6</span> - 2001:db8::1</li>
-              <li><span class="ioc-sample domain">ドメイン</span> - example.com</li>
+              ${sample('domain', 'helpDoc.typeDomain', 'example.com')}
               <li><span class="ioc-sample url">URL</span> - https://example.com</li>
-              <li><span class="ioc-sample email">メール</span> - user@example.com</li>
+              ${sample('email', 'helpDoc.typeEmail', 'user@example.com')}
             </ul>
           </div>
           <div class="ioc-type-group">
-            <h4>ファイル・システム関連</h4>
+            <h4>${t('helpDoc.typesFile')}</h4>
             <ul>
-              <li><span class="ioc-sample filePath">ファイルパス</span> - C:\\\\Windows\\\\System32</li>
-              <li><span class="ioc-sample registryKey">レジストリキー</span> - HKLM\\\\Software</li>
-              <li><span class="ioc-sample hash">ハッシュ値</span> - MD5/SHA1/SHA256</li>
+              ${sample('filePath', 'helpDoc.typeFilePath', String.raw`C:\Windows\System32`)}
+              ${sample('registryKey', 'helpDoc.typeRegistry', String.raw`HKLM\Software`)}
+              ${sample('hash', 'helpDoc.typeHash', 'MD5/SHA1/SHA256/SHA512')}
             </ul>
           </div>
           <div class="ioc-type-group">
-            <h4>脅威インテリジェンス</h4>
+            <h4>${t('helpDoc.typesThreat')}</h4>
             <ul>
-              <li><span class="ioc-sample cve">CVE番号</span> - CVE-2021-44228</li>
+              ${sample('cve', 'helpDoc.typeCve', 'CVE-2021-44228')}
               <li><span class="ioc-sample mitre">MITRE ATT&CK</span> - T1566.001</li>
-              <li><span class="ioc-sample bitcoin">Bitcoin</span> - 1A1zP1eP5QGefi2DMPTf...</li>
-              <li><span class="ioc-sample flag">CTFフラグ</span> - flag{example_flag}</li>
+              <li><span class="ioc-sample bitcoin">Bitcoin</span> - 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</li>
+              ${sample('flag', 'helpDoc.typeFlag', 'flag{example_flag}')}
             </ul>
           </div>
         </div>
       </div>
 
       <div class="help-section">
-        <h3>⚪ ホワイトリスト機能</h3>
-        <p>既知の安全なIOCを除外できます：</p>
+        <h3>${t('helpDoc.whitelistHeading')}</h3>
+        <p>${t('helpDoc.whitelistLead')}</p>
         <ul>
-          <li><strong>追加</strong>: テキストボックスに入力して「追加」ボタンまたはEnterキー</li>
-          <li><strong>削除</strong>: 各項目の×ボタンをクリック</li>
-          <li><strong>無効化</strong>: チェックボックスでON/OFF切り替え</li>
-          <li><strong>自動保存</strong>: 設定は自動的にブラウザに保存されます</li>
+          ${item('helpDoc.whitelistAddLabel', 'helpDoc.whitelistAdd')}
+          ${item('helpDoc.whitelistRemoveLabel', 'helpDoc.whitelistRemove')}
+          ${item('helpDoc.whitelistDisableLabel', 'helpDoc.whitelistDisable')}
+          ${item('helpDoc.whitelistSaveLabel', 'helpDoc.whitelistSave')}
         </ul>
       </div>
 
       <div class="help-section">
-        <h3>📊 統計とグラフ</h3>
+        <h3>${t('helpDoc.statsHeading')}</h3>
         <ul>
-          <li><strong>統計表示</strong>: 各IOCタイプの総数とユニーク数を表示</li>
-          <li><strong>グラフ表示</strong>: 棒グラフで視覚的に確認</li>
-          <li><strong>除外件数</strong>: ホワイトリストで除外された件数も表示</li>
-          <li><strong>ダークモード対応</strong>: 月アイコンで切り替え可能</li>
+          ${item('helpDoc.statsCountLabel', 'helpDoc.statsCount')}
+          ${item('helpDoc.statsChartLabel', 'helpDoc.statsChart')}
+          ${item('helpDoc.statsFilteredLabel', 'helpDoc.statsFiltered')}
+          ${item('helpDoc.statsThemeLabel', 'helpDoc.statsTheme')}
         </ul>
       </div>
 
       <div class="help-section">
-        <h3>📥 エクスポート機能</h3>
-        <p>解析結果を以下の形式でダウンロードできます：</p>
+        <h3>${t('helpDoc.exportHeading')}</h3>
+        <p>${t('helpDoc.exportDefang')}</p>
+        <p>${t('helpDoc.exportLead')}</p>
         <ul>
-          <li><strong>JSON形式</strong>: プログラムで処理しやすい構造化データ</li>
-          <li><strong>CSV形式</strong>: Excelで開ける表形式（BOM付き）</li>
-          <li><strong>テキスト形式</strong>: 読みやすいレポート形式</li>
+          ${item('helpDoc.exportJsonLabel', 'helpDoc.exportJson')}
+          ${item('helpDoc.exportCsvLabel', 'helpDoc.exportCsv')}
+          ${item('helpDoc.exportTxtLabel', 'helpDoc.exportTxt')}
         </ul>
       </div>
 
       <div class="help-section">
-        <h3>⌨️ キーボードショートカット</h3>
+        <h3>${t('helpDoc.keysHeading')}</h3>
         <ul>
-          <li><strong>Enter</strong>: ホワイトリスト入力時に項目を追加</li>
-          <li><strong>Escape</strong>: このヘルプを閉じる</li>
+          <li><strong>Enter</strong>: ${t('helpDoc.keyEnter')}</li>
+          <li><strong>Escape</strong>: ${t('helpDoc.keyEscape')}</li>
         </ul>
       </div>
 
       <div class="help-section">
-        <h3>💡 活用例</h3>
+        <h3>${t('helpDoc.useHeading')}</h3>
         <ul>
-          <li><strong>CTF競技</strong>: ログファイルからフラグやヒントを発見</li>
-          <li><strong>インシデント対応</strong>: 攻撃者のIPやマルウェアハッシュを抽出</li>
-          <li><strong>セキュリティ教育</strong>: ログ解析の練習教材として</li>
-          <li><strong>脅威分析</strong>: IOCの収集と前処理</li>
+          ${item('helpDoc.useCtfLabel', 'helpDoc.useCtf')}
+          ${item('helpDoc.useIrLabel', 'helpDoc.useIr')}
+          ${item('helpDoc.useEduLabel', 'helpDoc.useEdu')}
+          ${item('helpDoc.useThreatLabel', 'helpDoc.useThreat')}
         </ul>
       </div>
 
       <div class="help-section">
-        <h3>⚠️ 注意事項</h3>
+        <h3>${t('helpDoc.notesHeading')}</h3>
         <ul>
-          <li>ファイルサイズは最大20MBまで</li>
-          <li>全ての処理はブラウザ内で実行（データは外部送信されません）</li>
-          <li>正規表現による検出のため、一部誤検出の可能性があります</li>
+          <li>${t('helpDoc.note1')}</li>
+          <li>${t('helpDoc.note2')}</li>
+          <li>${t('helpDoc.note3')}</li>
         </ul>
       </div>
     `;
-    
+
     this.helpContent.innerHTML = content;
   }
 }
