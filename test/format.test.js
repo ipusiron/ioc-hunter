@@ -16,7 +16,8 @@ test('Readable source line lengths and non-minified principal files', () => {
     }
   }
   for (const [path, minimum] of Object.entries({
-    'css/style.css': 600, 'index.html': 150, 'js/script.js': 150, 'js/scanner.js': 100, 'js/analysisEngine.js': 200
+    'css/style.css': 600, 'index.html': 150, 'js/script.js': 150,
+    'js/scanner.js': 100, 'js/analysisEngine.js': 200, 'js/i18n.js': 300
   })) {
     assert.ok(readFileSync(new URL(path, root), 'utf8').split('\n').length >= minimum, path);
   }

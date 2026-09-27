@@ -11,9 +11,10 @@ test('File size boundaries and unsuccessful sample responses are rejected', asyn
   const original = globalThis.fetch;
   try {
     globalThis.fetch = async () => ({ ok: false, status: 404 });
-    await assert.rejects(handler.loadSampleList(), /サンプル一覧/);
-    await assert.rejects(handler.loadSampleFile('apache.txt'), /読み込み/);
-    await assert.rejects(handler.loadSampleFile('../README.md'), /無効/);
+    // 文言は i18n.js が持つので、ここではキーで照合する（訳は i18n.test.js で見る）
+    await assert.rejects(handler.loadSampleList(), /error\.sampleList/);
+    await assert.rejects(handler.loadSampleFile('apache.txt'), /error\.sampleLoad/);
+    await assert.rejects(handler.loadSampleFile('../README.md'), /error\.invalidSampleName/);
   } finally {
     globalThis.fetch = original;
   }
@@ -30,6 +31,7 @@ test('HTML security, local modules, accessibility and stable IDs', () => {
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|frame-ancestors/);
   assert.match(html, /name="referrer" content="no-referrer"/);
   assert.match(html, /<noscript>/);
+  assert.match(html, /<script src="js\/i18n.js"><\/script>/);
   assert.match(html, /<script type="module" src="js\/script.js"><\/script>/);
   assert.doesNotMatch(html, /\son\w+\s*=|\sstyle\s*=|<style\b/i);
   assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)="https?:/i);

@@ -1,6 +1,6 @@
-apache.txt:Apache アクセスログ
-auth.log:Linux auth.log
-mail.log:メールログ
-dns.log:DNSログ
-proxy.log:Proxyログ
-advanced_ioc.txt:高度なIOCサンプル（URL、ファイルパス、CVE等）
+apache.txt:Apache アクセスログ:Apache access log
+auth.log:Linux auth.log:Linux auth.log
+mail.log:メールログ:Mail log
+dns.log:DNSログ:DNS log
+proxy.log:Proxyログ:Proxy log
+advanced_ioc.txt:高度なIOCサンプル（URL、ファイルパス、CVE等）:Advanced IOC sample (URL, file path, CVE, and more)

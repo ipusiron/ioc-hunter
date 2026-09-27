@@ -494,6 +494,33 @@ body.dark-mode .help-button:hover {
   background: #333;
 }
 
+/* 言語切り替えボタン。英語のほうが語が長いので折り返さず幅を許す */
+.lang-toggle {
+  background: transparent;
+  border: 2px solid #666;
+  border-radius: 20px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.9em;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.lang-toggle:hover {
+  background: #f0f0f0;
+}
+
+body.dark-mode .lang-toggle {
+  border-color: #e0e0e0;
+  color: #e0e0e0;
+}
+
+body.dark-mode .lang-toggle:hover {
+  background: #333;
+}
+
 /* モーダル */
 .modal {
   position: fixed;
@@ -633,6 +660,9 @@ body.dark-mode .help-section h4 {
 .help-section li {
   margin-bottom: 0.3em;
   line-height: 1.5;
+  /* URLやBitcoinアドレスは狭い画面で折り返せず、320pxではみ出していた */
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .ioc-types {
@@ -640,6 +670,11 @@ body.dark-mode .help-section h4 {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5em;
   margin: 1em 0;
+}
+
+/* min-width が auto のままだと、列が中身の最小幅まで広がって狭い画面ではみ出す */
+.ioc-type-group {
+  min-width: 0;
 }
 
 .ioc-type-group ul {

@@ -26,18 +26,12 @@ export const CONFIG = {
     cve: /(?<![a-z\d])CVE-\d{4}-\d{4,7}(?![a-z\d])/gi,
     mitre: /(?<![a-z\d])T\d{4}(?:\.\d{3})?(?![a-z\d.])/gi,
     flag: /\b(?:flag|ctf|picoctf|hackthebox|tryhackme|htb|thm)\{[^}\r\n]{0,256}\}/gi,
-  },
-  MESSAGES: {
-    FILE_TOO_LARGE: '⚠ このファイルは20MBを超えているため読み込めません。',
-    INVALID_FILE_TYPE: 'テキストファイル（.txt または .log）を選択してください。',
-    NO_SAMPLE_SELECTED: '読み込むテストログを選択してください。',
-    FILE_LOAD_ERROR: 'ファイル読み込みに失敗しました'
   }
 };
 
 /**
- * HTMLエスケープユーティリティ
- * XSS攻撃を防ぐため、HTMLの特殊文字をエスケープ
+ * HTMLエスケープのユーティリティー。
+ * XSSを防ぐため、HTMLの特殊文字をエスケープする。
  */
 export function escapeHtml(str) {
   if (typeof str !== 'string') return '';

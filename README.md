@@ -38,6 +38,8 @@ hub: true
 
 # IOC Hunter - ログから侵害の痕跡を抽出するツール
 
+[English](README.en.md) · 日本語
+
 [![Stars](https://img.shields.io/github/stars/ipusiron/ioc-hunter)](https://github.com/ipusiron/ioc-hunter/stargazers)
 [![Forks](https://img.shields.io/github/forks/ipusiron/ioc-hunter)](https://github.com/ipusiron/ioc-hunter/forks)
 [![Last commit](https://img.shields.io/github/last-commit/ipusiron/ioc-hunter)](https://github.com/ipusiron/ioc-hunter/commits/main)
@@ -90,6 +92,7 @@ hub: true
 - **ホワイトリスト**: 既知の安全なIOCを除外する機能（永続化対応）
 - **エクスポート**: JSON/CSV/TXT形式での結果出力
 - **ヘルプモーダル**: 各IOCタイプの説明とサンプル表示
+- **日本語・英語の切り替え**: 画面右上のボタンで切り替え、選択はブラウザーに保存（`?lang=ja` / `?lang=en` でも指定可能）
 - **レスポンシブデザイン**: モバイル・タブレット対応
 
 ---
@@ -194,7 +197,7 @@ THM{short_format}
 
 ### 基本的な使い方
 1. **ファイル読み込み**: ドラッグ&ドロップまたはファイル選択でログファイルを読み込み
-2. **分析実行**: 「分析開始」ボタンでIOC検出を実行
+2. **解析実行**: 「解析する」ボタンでIOC検出を実行
 3. **結果確認**: 4つのタブで分析結果を確認
 
 ## 📐 画面構成
@@ -241,14 +244,15 @@ THM{short_format}
 ### カスタマイズ
 - **新しいIOCパターン追加**: `js/config.js`の正規表現パターンを編集
 - **CTFフラグ形式追加**: `config.js`のflagパターンに新しいプラットフォーム形式を追加
-- **サンプルログ追加**: `samples/`ディレクトリにファイル追加後、`samples/list.txt`を更新
+- **サンプルログ追加**: `samples/`ディレクトリにファイル追加後、`samples/list.txt`を更新（`ファイル名:日本語のラベル:英語のラベル`の3列）
+- **文言の追加・変更**: `js/i18n.js`の`ja`と`en`に同じキーを足す（キーの過不足はテストが落とす）
 - **スタイル変更**: `css/style.css`でテーマ・色彩をカスタマイズ
 
 ---
 
 ## 🔒 セキュリティとプライバシー
 
-入力の解析・defang/refang・エクスポートはブラウザー内で完結し、外部送信しません。通信はページ自身と同じ配信元のファイル・サンプルの読み込みだけです。localStorageにはテーマとホワイトリストを保存します。入力ログや解析結果は保存しません。
+入力の解析・defang/refang・エクスポートはブラウザー内で完結し、外部送信しません。通信はページ自身と同じ配信元のファイル・サンプルの読み込みだけです。localStorageにはテーマ、ホワイトリスト、言語の選択を保存します。入力ログや解析結果は保存しません。
 
 CSPではscript・style・fontをselfに制限し、object-srcはnone、connect-srcはselfとしています。インラインスクリプト・インラインスタイルを許可せず、referrerはno-referrerです。metaではframe-ancestorsを強制できないため、埋め込み制限はこの設定だけでは実現できません。
 
@@ -299,7 +303,7 @@ IANAの[TLD一覧](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)を管理�
 
 ## 🧪 テスト
 
-Node 22以上で`npm test`を実行します。依存パッケージのインストールは不要です。GitHub Actionsでもpushとpull_requestのたびに実行し、READMEの表と例、5タイムゾーンでの結果一致、配色、サンプルの件数を検証します。
+Node 22以上で`npm test`を実行します。依存パッケージのインストールは不要です。GitHub Actionsでもpushとpull_requestのたびに実行し、READMEの表と例、5タイムゾーンでの結果一致、配色、サンプルの件数、日本語と英語の辞書の対応を検証します。
 
 ## 📁 ディレクトリー構造
 
@@ -319,6 +323,7 @@ ioc-hunter/
 │   ├── exportHandler.js
 │   ├── fileHandler.js
 │   ├── helpModal.js
+│   ├── i18n.js                # 日本語・英語の辞書とDOMへの適用
 │   ├── iocAnalyzer.js
 │   ├── scanner.js
 │   ├── script.js
@@ -327,11 +332,12 @@ ioc-hunter/
 │   ├── uiController.js
 │   └── whitelistManager.js
 ├── samples/                  # 6本のログとlist.txt
-├── test/                     # パターン・表示・日時・出力・文書・配色
+├── test/                     # パターン・表示・日時・出力・文書・配色・日英
 ├── index.html
 ├── package.json
 ├── CLAUDE.md
 ├── LICENSE
+├── README.en.md
 └── README.md
 ```
 

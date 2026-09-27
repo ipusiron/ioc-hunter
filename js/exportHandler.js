@@ -7,8 +7,14 @@ export function csvCell(value) {
 }
 
 export class ExportHandler {
-  constructor() {
+  // i18n を渡さない場合はキーをそのまま返す（Nodeのテストから読めるように）
+  constructor(i18n = null) {
+    this.i18n = i18n;
     this.currentStats = null;
+  }
+
+  t(key, values) {
+    return this.i18n ? this.i18n.t(key, values) : key;
   }
 
   setStats(stats) {
@@ -18,7 +24,7 @@ export class ExportHandler {
   export(format, useDefang = false) {
     this.useDefang = useDefang;
     if (!this.currentStats) {
-      throw new Error('エクスポートするデータがありません');
+      throw new Error(this.t('error.noExportData'));
     }
 
     switch (format) {
@@ -29,7 +35,7 @@ export class ExportHandler {
       case 'txt':
         return this.exportTXT();
       default:
-        throw new Error('サポートされていない形式です');
+        throw new Error(this.t('error.unsupportedFormat'));
     }
   }
 
@@ -59,12 +65,13 @@ export class ExportHandler {
 
   exportCSV() {
     const rows = [
-      ['IOCタイプ', 'IOC値', '総数', 'ユニーク数']
+      [this.t('file.csvHeader.type'), this.t('file.csvHeader.value'),
+        this.t('file.csvHeader.total'), this.t('file.csvHeader.unique')]
     ];
 
     for (const [type, info] of Object.entries(this.currentStats)) {
       if (info.items.length === 0) {
-        rows.push([type, '(なし)', info.total, info.unique]);
+        rows.push([type, this.t('file.csvEmpty'), info.total, info.unique]);
       } else {
         info.items.forEach((item, index) => {
           if (index === 0) {
@@ -86,23 +93,23 @@ export class ExportHandler {
   }
 
   exportTXT() {
-    let text = `IOC抽出結果\n`;
-    text += `抽出日時: ${new Date().toISOString()}\n`;
+    let text = `${this.t('file.txtTitle')}\n`;
+    text += `${this.t('file.txtDate')}: ${new Date().toISOString()}\n`;
     text += `${'='.repeat(50)}\n\n`;
 
     const summary = this.getSummary();
-    text += `サマリー:\n`;
-    text += `  総IOC数: ${summary.totalIOCs}\n`;
-    text += `  ユニークIOC数: ${summary.uniqueIOCs}\n\n`;
+    text += `${this.t('file.txtSummary')}:\n`;
+    text += `  ${this.t('file.txtTotal')}: ${summary.totalIOCs}\n`;
+    text += `  ${this.t('file.txtUnique')}: ${summary.uniqueIOCs}\n\n`;
 
     for (const [type, info] of Object.entries(this.currentStats)) {
       text += `${type.toUpperCase()}\n`;
       text += `${'-'.repeat(30)}\n`;
-      text += `  総数: ${info.total}\n`;
-      text += `  ユニーク数: ${info.unique}\n`;
+      text += `  ${this.t('file.txtTypeTotal')}: ${info.total}\n`;
+      text += `  ${this.t('file.txtTypeUnique')}: ${info.unique}\n`;
       
       if (info.items.length > 0) {
-        text += `  検出項目:\n`;
+        text += `  ${this.t('file.txtItems')}:\n`;
         info.items.forEach(item => {
           text += `    - ${this.outputValue(item, type)}\n`;
         });
@@ -153,7 +160,7 @@ export class ExportHandler {
       
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('ダウンロードに失敗しました。');
+      console.error('The download failed.');
       throw error;
     }
   }

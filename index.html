@@ -7,18 +7,25 @@
       default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self';
       connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="referrer" content="no-referrer">
-    <title>IOCハンター（IOC Hunter）</title>
+    <meta name="description"
+      content="ログやテキストからIOC（侵害の痕跡）を抽出し、12種類を色分けして可視化するブラウザー完結のツール。">
+    <title>IOCハンター（IOC Hunter）— ログから侵害の痕跡を自動検出・可視化</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <noscript>このツールを使うには、ブラウザーのJavaScriptを有効にしてください。</noscript>
+    <noscript>このツールを使うには、ブラウザーのJavaScriptを有効にしてください。 /
+      Enable JavaScript in your browser to use this tool.</noscript>
     <div class="header-container">
-      <h1>🕵️ IOCハンター（IOC Hunter）</h1>
+      <h1 data-i18n="app.heading">🕵️ IOCハンター（IOC Hunter）</h1>
       <div class="header-buttons">
-        <button id="helpButton" class="help-button" aria-label="ヘルプを表示" aria-haspopup="dialog">
+        <button id="langToggle" class="lang-toggle" type="button"
+          data-i18n="app.langButton" data-i18n-aria-label="app.langAria">English</button>
+        <button id="helpButton" class="help-button" data-i18n-aria-label="help.open"
+          aria-label="ヘルプを表示" aria-haspopup="dialog">
           <span class="help-icon">❓</span>
         </button>
-        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="ダークモード切り替え">
+        <button id="darkModeToggle" class="dark-mode-toggle" data-i18n-aria-label="header.darkToggle"
+          aria-label="ダークモード切り替え">
           <span class="dark-mode-icon"></span>
         </button>
       </div>
@@ -26,87 +33,95 @@
 
     <div id="fileDropArea">
       <p>
-        ここに .txt ファイルをドロップするか、
-        <label for="fileInput" class="fileLabel">ファイルを選択</label>
+        <span data-i18n="drop.text">ここに .txt ファイルをドロップするか、</span>
+        <label for="fileInput" class="fileLabel" data-i18n="drop.choose">ファイルを選択</label>
       </p>
       <input type="file" id="fileInput" accept=".txt,.log" hidden />
     </div>
 
     <!-- テストログ切り替えチェック -->
     <div id="testToggle">
-      <label><input type="checkbox" id="useTestLog" /> テストログを使う</label>
+      <label><input type="checkbox" id="useTestLog" />
+        <span data-i18n="test.useLog">テストログを使う</span></label>
     </div>
 
     <!-- テストログ選択UI -->
     <div id="testLoader" hidden>
-      <label for="sampleSelector">テストログ</label>
+      <label for="sampleSelector" data-i18n="test.label">テストログ</label>
       <select id="sampleSelector">
-        <option value="">テスト用ログファイルを選択してください</option>
+        <option value="" data-i18n="test.placeholder">テスト用ログファイルを選択してください</option>
       </select>
-      <button id="loadSample">読み込む</button>
+      <button id="loadSample" data-i18n="test.load">読み込む</button>
     </div>
 
-    <label for="inputText">解析するログ・テキスト</label>
+    <label for="inputText" data-i18n="input.label">解析するログ・テキスト</label>
     <textarea
       id="inputText"
+      data-i18n-placeholder="input.placeholder"
       placeholder="ここにログやテキストを貼り付けてください..."
       rows="15"
     ></textarea>
-    <button id="analyzeButton">解析する</button>
+    <button id="analyzeButton" data-i18n="input.analyze">解析する</button>
 
     <!-- ホワイトリストセクション -->
     <div id="whitelistSection">
-      <h2>⚪ ホワイトリスト設定</h2>
+      <h2 data-i18n="whitelist.heading">⚪ ホワイトリスト設定</h2>
       <div class="whitelist-controls">
         <div class="whitelist-input-group">
-          <label for="whitelistInput">除外するIOC</label>
-          <input type="text" id="whitelistInput" placeholder="除外するIOCを入力（例: 192.168.1.1）">
-          <button id="addWhitelistButton">追加</button>
+          <label for="whitelistInput" data-i18n="whitelist.inputLabel">除外するIOC</label>
+          <input type="text" id="whitelistInput" data-i18n-placeholder="whitelist.inputPlaceholder"
+            placeholder="除外するIOCを入力（例: 192.168.1.1）">
+          <button id="addWhitelistButton" data-i18n="whitelist.add">追加</button>
         </div>
         <div class="whitelist-toggle">
           <label>
             <input type="checkbox" id="enableWhitelist" checked>
-            ホワイトリストを有効にする
+            <span data-i18n="whitelist.enable">ホワイトリストを有効にする</span>
           </label>
         </div>
       </div>
       <div id="whitelistDisplay" class="whitelist-display"></div>
     </div>
 
-    <h2>🔍 抽出結果</h2>
+    <h2 data-i18n="results.heading">🔍 抽出結果</h2>
     <p id="analysisStatus" role="status" aria-live="polite"></p>
     <div id="exportSection" hidden>
       <div class="export-controls">
-        <label for="exportFormat">出力形式</label>
+        <label for="exportFormat" data-i18n="export.formatLabel">出力形式</label>
         <select id="exportFormat">
-          <option value="json">JSON形式</option>
-          <option value="csv">CSV形式</option>
-          <option value="txt">テキスト形式</option>
+          <option value="json" data-i18n="export.json">JSON形式</option>
+          <option value="csv" data-i18n="export.csv">CSV形式</option>
+          <option value="txt" data-i18n="export.txt">テキスト形式</option>
         </select>
-        <label><input type="checkbox" id="defangOutput">defangして出力</label>
-        <button id="downloadButton">📥 結果をダウンロード</button>
+        <label><input type="checkbox" id="defangOutput">
+          <span data-i18n="export.defang">defangして出力</span></label>
+        <button id="downloadButton" data-i18n="export.download">📥 結果をダウンロード</button>
       </div>
     </div>
 
     <!-- 結果表示タブ -->
     <div id="resultsSection" hidden>
       <div class="tab-container">
-        <div class="tab-buttons" role="tablist" aria-label="解析結果">
+        <div class="tab-buttons" role="tablist" data-i18n-aria-label="tabs.aria" aria-label="解析結果">
           <button class="tab-button active" data-tab="overview" id="button-overview" role="tab"
+            data-i18n="tab.overview"
             aria-selected="true" aria-controls="tab-overview" tabindex="0">📊 概要</button>
           <button class="tab-button" data-tab="analysis" id="button-analysis" role="tab"
+            data-i18n="tab.analysis"
             aria-selected="false" aria-controls="tab-analysis" tabindex="-1">🔬 分析</button>
           <button class="tab-button" data-tab="timeline" id="button-timeline" role="tab"
+            data-i18n="tab.timeline"
             aria-selected="false" aria-controls="tab-timeline" tabindex="-1">📅 タイムライン</button>
           <button class="tab-button" data-tab="details" id="button-details" role="tab"
+            data-i18n="tab.details"
             aria-selected="false" aria-controls="tab-details" tabindex="-1">📝 詳細</button>
         </div>
-        
+
         <div class="tab-content">
           <!-- 概要タブ -->
           <div id="tab-overview" class="tab-panel active" role="tabpanel"
               aria-labelledby="button-overview">
-            <h3>📊 IOC統計</h3>
+            <h3 data-i18n="panel.overview">📊 IOC統計</h3>
             <div id="chartContainer">
               <canvas id="iocChart" width="800" height="350"></canvas>
             </div>
@@ -116,21 +131,21 @@
           <!-- 分析タブ -->
           <div id="tab-analysis" class="tab-panel" role="tabpanel"
               aria-labelledby="button-analysis" hidden>
-            <h3>🔬 関連性分析</h3>
+            <h3 data-i18n="panel.analysis">🔬 関連性分析</h3>
             <div id="analysisArea"></div>
           </div>
 
           <!-- タイムラインタブ -->
           <div id="tab-timeline" class="tab-panel" role="tabpanel"
               aria-labelledby="button-timeline" hidden>
-            <h3>📅 タイムライン分析</h3>
+            <h3 data-i18n="panel.timeline">📅 タイムライン分析</h3>
             <div id="timelineArea"></div>
           </div>
 
           <!-- 詳細タブ -->
           <div id="tab-details" class="tab-panel" role="tabpanel"
               aria-labelledby="button-details" hidden>
-            <h3>📝 抽出結果</h3>
+            <h3 data-i18n="panel.details">📝 抽出結果</h3>
             <div id="outputArea"></div>
           </div>
         </div>
@@ -142,8 +157,9 @@
       <div class="modal-overlay">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 id="helpTitle">🕵️ IOCハンター ヘルプ</h2>
-            <button id="closeHelp" class="close-button" aria-label="ヘルプを閉じる">×</button>
+            <h2 id="helpTitle" data-i18n="helpDoc.title">🕵️ IOCハンター ヘルプ</h2>
+            <button id="closeHelp" class="close-button" data-i18n-aria-label="help.close"
+              aria-label="ヘルプを閉じる">×</button>
           </div>
           <div class="modal-body">
             <div id="helpContent">
@@ -154,11 +170,14 @@
       </div>
     </div>
 
+    <script src="js/i18n.js"></script>
     <script type="module" src="js/script.js"></script>
 
     <footer class="app-footer">
       <div class="footer">
-        🔗 GitHubリポジトリーはこちら（<a href="https://github.com/ipusiron/ioc-hunter" target="_blank" rel="noopener noreferrer">ipusiron/ioc-hunter</a>）
+        <span data-i18n="footer.before">🔗 GitHubリポジトリーはこちら（</span><a
+          href="https://github.com/ipusiron/ioc-hunter" target="_blank"
+          rel="noopener noreferrer">ipusiron/ioc-hunter</a><span data-i18n="footer.after">）</span>
       </div>
     </footer>
   </body>

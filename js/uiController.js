@@ -1,5 +1,7 @@
 import { escapeHtml } from './config.js';
 
+const t = (key, values) => window.I18n.t(key, values);
+
 export class UIController {
   constructor() {
     this.elements = {
@@ -50,16 +52,26 @@ export class UIController {
 
   displayStats(statsHTML) {
     this.elements.statsArea.innerHTML = statsHTML;
-    document.getElementById('analysisStatus').textContent = '解析が完了しました。';
+    document.getElementById('analysisStatus').textContent = t('status.done');
   }
 
+  // 選択を残したまま作り直す。先頭のプレースホルダーは data-i18n で訳されるので残す。
   populateSampleSelector(samples) {
-    samples.forEach(({ filename, label }) => {
+    this.samples = samples;
+    const selector = this.elements.sampleSelector;
+    const selected = selector.value;
+    [...selector.options].slice(1).forEach(option => option.remove());
+    samples.forEach(({ filename, labels }) => {
       const option = document.createElement('option');
       option.value = filename;
-      option.textContent = label;
-      this.elements.sampleSelector.appendChild(option);
+      option.textContent = labels[window.I18n.language] || labels.ja;
+      selector.appendChild(option);
     });
+    selector.value = selected;
+  }
+
+  refreshSampleSelector() {
+    if (this.samples) this.populateSampleSelector(this.samples);
   }
 
   getSelectedSample() {
@@ -149,12 +161,14 @@ export class UIController {
   }
 
   updateWhitelistDisplay(whitelist) {
+    this.whitelist = whitelist;
     const html = whitelist.length === 0 
-      ? '<p class="whitelist-empty">ホワイトリストは空です</p>'
+      ? `<p class="whitelist-empty">${escapeHtml(t('whitelist.empty'))}</p>`
       : whitelist.map(ioc => `
           <div class="whitelist-item">
             <span>${this.escapeHtml(ioc)}</span>
-            <button class="remove-btn" data-ioc="${this.escapeHtml(ioc)}">×</button>
+            <button class="remove-btn" data-ioc="${this.escapeHtml(ioc)}"
+              aria-label="${this.escapeHtml(t('whitelist.remove', { value: ioc }))}">×</button>
           </div>
         `).join('');
     
@@ -169,6 +183,10 @@ export class UIController {
         }
       });
     });
+  }
+
+  refreshWhitelistDisplay() {
+    if (this.whitelist) this.updateWhitelistDisplay(this.whitelist);
   }
 
   setRemoveWhitelistHandler(handler) {

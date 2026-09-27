@@ -248,7 +248,7 @@ export class AnalysisEngine {
     return patterns;
   }
 
-  // リスク評価
+  // リスク評価。文言は持たず、表示側で訳すキーを返す。
   assessRisks() {
     const risks = [];
     
@@ -261,7 +261,8 @@ export class AnalysisEngine {
           iocType: type,
           count: this.stats[type].total,
           level: 'high',
-          description: `${type}タイプのIOCが検出されました`
+          descriptionKey: 'risk.highRiskIoc',
+          descriptionParams: { type }
         });
       }
     });
@@ -323,7 +324,8 @@ export class AnalysisEngine {
     if (this.stats.ipv4?.total >= 10) {
       patterns.push({
         type: 'multiple_ips',
-        description: '多数のIPアドレスが検出されました（ポートスキャンの可能性）'
+        descriptionKey: 'pattern.multipleIps',
+        descriptionParams: {}
       });
     }
     

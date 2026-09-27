@@ -197,14 +197,17 @@ export class ChartRenderer {
     this.ctx.globalAlpha = 1.0;
     this.ctx.fillStyle = axisColor;
     this.ctx.textAlign = 'left';
-    this.ctx.fillText('総数', legendX + 20, legendY + 12);
+    const totalLabel = window.I18n.t('chart.total');
+    this.ctx.fillText(totalLabel, legendX + 20, legendY + 12);
+    // 英語の語は和文より幅が広いので、2つ目の位置は測って決める
+    const secondX = legendX + 45 + this.ctx.measureText(totalLabel).width;
     
     // ユニーク数の凡例（横並びに配置）
     this.ctx.fillStyle = sampleColor;
     this.ctx.globalAlpha = 0.5;
-    this.ctx.fillRect(legendX + 80, legendY, 15, 15);
+    this.ctx.fillRect(secondX, legendY, 15, 15);
     this.ctx.globalAlpha = 1.0;
     this.ctx.fillStyle = axisColor;
-    this.ctx.fillText('ユニーク', legendX + 100, legendY + 12);
+    this.ctx.fillText(window.I18n.t('chart.unique'), secondX + 20, legendY + 12);
   }
 }

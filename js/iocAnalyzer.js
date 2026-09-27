@@ -1,4 +1,5 @@
 import { scan, statsFromMatches, highlightMatches } from './scanner.js';
+import { escapeHtml } from './config.js';
 
 export class IOCAnalyzer {
   constructor() {
@@ -31,11 +32,14 @@ export class IOCAnalyzer {
     return highlightMatches(text, matches);
   }
 
+  // 数字は込みで文言を作るので、訳したあとにエスケープする。
   generateStatsHTML(stats) {
+    const t = (key, values) => escapeHtml(window.I18n.t(key, values));
     const items = Object.entries(stats).map(([type, data]) => {
-      let html = `<li><strong>${type}</strong>: ${data.total} 件（ユニーク: ${data.unique} 件）`;
+      const counts = t('stats.item', { total: data.total, unique: data.unique });
+      let html = `<li><strong>${escapeHtml(type)}</strong>: ${counts}`;
       if (data.filtered > 0) {
-        html += ` <span class="filtered-count">（${data.filtered} 件除外）</span>`;
+        html += ` <span class="filtered-count">${t('stats.filtered', { filtered: data.filtered })}</span>`;
       }
       html += '</li>';
       return html;

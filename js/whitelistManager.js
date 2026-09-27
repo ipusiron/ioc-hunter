@@ -65,7 +65,11 @@ export class WhitelistManager {
       whitelist: this.getAll(),
       enabled: this.enabled
     };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Could not save the whitelist.');
+    }
   }
 
   loadFromStorage() {
@@ -77,7 +81,7 @@ export class WhitelistManager {
         this.enabled = data.enabled !== false;
       }
     } catch (error) {
-      console.error('ホワイトリストの読み込みに失敗:', error);
+      console.error('Failed to load the whitelist.');
     }
   }
 

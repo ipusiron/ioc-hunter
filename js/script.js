@@ -1,4 +1,3 @@
-import { CONFIG } from './config.js';
 import { IOCAnalyzer } from './iocAnalyzer.js';
 import { FileHandler } from './fileHandler.js';
 import { UIController } from './uiController.js';
@@ -10,19 +9,24 @@ import { HelpModal } from './helpModal.js';
 import { AnalysisEngine } from './analysisEngine.js';
 import { TabManager } from './tabManager.js';
 
+const I18n = window.I18n;
+const t = (key, values) => I18n.t(key, values);
+
 class IOCHunterApp {
   constructor() {
     this.analyzer = new IOCAnalyzer();
-    this.fileHandler = new FileHandler();
+    this.fileHandler = new FileHandler(I18n);
     this.ui = new UIController();
     this.darkModeHandler = new DarkModeHandler();
-    this.exportHandler = new ExportHandler();
+    this.exportHandler = new ExportHandler(I18n);
     this.chartRenderer = new ChartRenderer();
     this.whitelistManager = new WhitelistManager();
     this.helpModal = new HelpModal();
     this.analysisEngine = new AnalysisEngine();
     this.tabManager = new TabManager();
-    
+    // 結果があるかをここで持つ。空のまま言語を変えても再描画しないため。
+    this.lastAnalysis = null;
+
     this.init();
   }
 
@@ -63,44 +67,62 @@ class IOCHunterApp {
     });
     
     this.loadSampleList();
+    this.bindLanguageToggle();
+  }
+
+  bindLanguageToggle() {
+    document.getElementById('langToggle').addEventListener('click',
+      () => I18n.setLanguage(I18n.language === 'ja' ? 'en' : 'ja'));
+    document.addEventListener('languagechange', () => {
+      this.ui.refreshSampleSelector();
+      this.ui.refreshWhitelistDisplay();
+      // 結果が出ているときだけ訳し直す。再走査はしない。
+      this.renderAnalysis();
+    });
   }
 
   handleAnalyze() {
     try {
       const inputText = this.ui.getInputText();
-      
+
       if (!inputText.trim()) {
-        this.ui.showError('分析するテキストを入力してください。');
+        this.ui.showError(t('error.emptyInput'));
         return;
       }
-      
-      const { stats, highlighted, matches } = this.analyzer.analyze(inputText);
-      const statsHTML = this.analyzer.generateStatsHTML(stats);
-      
-      // 基本的な統計とハイライト表示
-      this.ui.displayStats(statsHTML);
-      this.ui.displayResults(stats, highlighted);
-      
-      // 可視化してからキャンバスの幅を取得する
-      this.ui.showResultsSection();
-      this.chartRenderer.render(stats);
-      
-      // エクスポート用にstatsを保存し、セクションを表示
-      this.exportHandler.setStats(stats);
-      this.ui.showExportSection();
-      this.ui.showResultsSection();
-      
-      // 高度な分析を実行（表示の後に実行してエラーを防ぐ）
-      try {
-        this.performAdvancedAnalysis(inputText, stats, matches);
 
-      } catch (error) {
-        console.error('Advanced analysis failed.');
-        this.ui.showError('関連性分析に失敗しました。');
-      }
+      const { stats, highlighted, matches } = this.analyzer.analyze(inputText);
+      this.lastAnalysis = { inputText, stats, highlighted, matches };
+      this.renderAnalysis(true);
     } catch (error) {
       console.error('Analysis failed.');
-      this.ui.showError(`分析中にエラーが発生しました: ${error.message}`);
+      this.ui.showError(t('error.analyze', { message: error.message }));
+    }
+  }
+
+  // ここを通るのは「解析した直後」と「言語を変えたとき」の2とおりである。
+  renderAnalysis(notify = false) {
+    if (!this.lastAnalysis) return;
+    const { inputText, stats, highlighted, matches } = this.lastAnalysis;
+
+    // 基本的な統計とハイライト表示
+    this.ui.displayStats(this.analyzer.generateStatsHTML(stats));
+    this.ui.displayResults(stats, highlighted);
+
+    // 可視化してからキャンバスの幅を取得する
+    this.ui.showResultsSection();
+    this.chartRenderer.render(stats);
+
+    // エクスポート用にstatsを保存し、セクションを表示
+    this.exportHandler.setStats(stats);
+    this.ui.showExportSection();
+
+    // 高度な分析を実行（表示の後に実行してエラーを防ぐ）
+    try {
+      this.performAdvancedAnalysis(inputText, stats, matches);
+    } catch (error) {
+      console.error('Advanced analysis failed.');
+      // 言語を変えるたびに同じ警告を出さない
+      if (notify) this.ui.showError(t('error.correlation'));
     }
   }
 
@@ -168,7 +190,7 @@ class IOCHunterApp {
   async handleLoadSample() {
     const filename = this.ui.getSelectedSample();
     if (!filename) {
-      this.ui.showError(CONFIG.MESSAGES.NO_SAMPLE_SELECTED);
+      this.ui.showError(t('error.noSample'));
       return;
     }
 
@@ -185,7 +207,7 @@ class IOCHunterApp {
       const samples = await this.fileHandler.loadSampleList();
       this.ui.populateSampleSelector(samples);
     } catch (error) {
-      console.error('サンプルリストの読み込みに失敗しました。');
+      console.error('Failed to load the sample list.');
     }
   }
 
@@ -204,7 +226,7 @@ class IOCHunterApp {
       if (this.whitelistManager.add(ioc)) {
         this.ui.clearWhitelistInput();
       } else {
-        this.ui.showError('無効なIOCまたはすでに追加済みです');
+        this.ui.showError(t('error.duplicateIoc'));
       }
     }
   }
@@ -218,7 +240,8 @@ class IOCHunterApp {
   }
 }
 
-// アプリケーションの初期化
+// アプリケーションの初期化。言語の決定と適用を先に行う。
 window.addEventListener('DOMContentLoaded', () => {
+  I18n.init();
   new IOCHunterApp();
 });

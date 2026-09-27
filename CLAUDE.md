@@ -29,6 +29,7 @@ The application uses a modular ES6 architecture:
 8. **AnalysisEngine** (`analysisEngine.js`) - Shared line index for cooccurrence/proximity, capped at 20,000 pairs
 9. **TLD data** (`data/tlds.js`) - IANA Version 2026092000 (2026-09-20), 1,438 uppercase entries
 10. **ExportHandler** (`exportHandler.js`) - Quoted CSV with formula protection; JSON URL host and optional network defang
+11. **I18n** (`i18n.js`) - A plain script (not a module) loaded before `script.js`. Holds the Japanese and English dictionaries, applies `data-i18n` attributes, and fires `languagechange`
 
 ## IOC Detection Patterns
 
@@ -49,18 +50,20 @@ HTML text preservation, exports, README metadata/examples, contrast, and five ti
 GitHub Actions runs the same command on push and pull_request with Node 22.
 
 Manual testing using sample files in `samples/`:
-- Toggle "テストログを使う" (Use test log) in UI
-- Sample files listed in `samples/list.txt`
+- Toggle "テストログを使う" (Use a test log) in UI
+- Sample files listed in `samples/list.txt` (three columns: `filename:Japanese label:English label`)
 
 ## Key Constraints
 
 - File size limit: 20MB
 - Supported formats: .txt, .log
 - All processing is client-side (privacy-focused)
-- Japanese UI with some English variable names
+- Japanese and English UI. Every user-facing string lives in `js/i18n.js`; no other script holds wording
+- `scanner.js` and `timeline.js` stay free of wording and of `I18n` (tests enforce this)
+- Do not put `data-i18n` on a slot that JavaScript writes into, or on an attribute that changes with state
 - Timestamp display preserves source spelling; offset-free values compare as UTC and yearless syslog uses 1970
 - No external APIs, dependencies, checksum classification, or runtime TLD downloads
 - Do not modify old screenshots or sample fixtures to make tests pass
 - Preserve README metadata structure and identity values
 - Strict meta CSP: no inline scripts/styles; meta frame-ancestors is not effective
-- Store only theme and whitelist locally; never store or transmit input logs
+- Store only theme, whitelist and the chosen language locally; never store or transmit input logs
