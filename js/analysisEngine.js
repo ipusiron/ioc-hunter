@@ -1,59 +1,48 @@
+import { extractTimestamps } from './timeline.js';
+
 export class AnalysisEngine {
   constructor() {
     this.originalText = '';
     this.stats = null;
   }
 
-  setData(text, stats) {
+  setData(text, stats, matches) {
     this.originalText = text;
     this.stats = stats;
+    this.matches = matches;
+    this.lines = text.split(/\r?\n/);
+    this.lineIndex = new Map();
+    this.counts = new Map();
+    for (const match of matches) {
+      if (!this.lineIndex.has(match.line)) this.lineIndex.set(match.line, []);
+      this.lineIndex.get(match.line).push(match);
+      const key = match.type + '\0' + match.value;
+      this.counts.set(key, (this.counts.get(key) || 0) + 1);
+    }
+    this.correlationLimit = 20000;
+    this.truncated = false;
   }
 
   // IOC関連性分析
   analyzeCorrelations() {
-    const correlations = [];
-    const allIOCs = this.getAllIOCs();
-    
-    // 共起関係の分析
-    correlations.push(...this.analyzeCooccurrence(allIOCs));
-    
-    // ドメインとIPの関連性
-    correlations.push(...this.analyzeDomainIPRelations());
-    
-    // ファイルパスとハッシュの関連性
-    correlations.push(...this.analyzeFileHashRelations());
-    
-    // CVEとMITRE ATT&CKの関連性
-    correlations.push(...this.analyzeThreatIntelRelations());
-    
-    return correlations;
+    this.truncated = false;
+    return this.analyzeCooccurrence();
   }
 
   // タイムライン分析
   analyzeTimeline() {
-    const lines = this.originalText.split(/\r?\n/);
     const events = [];
-    
-    lines.forEach((line, index) => {
-      // タイムスタンプパターンの検出
-      const timestamps = this.extractTimestamps(line);
-      const iocs = this.extractIOCsFromLine(line);
-      
-      if (timestamps.length > 0 && iocs.length > 0) {
-        timestamps.forEach(timestamp => {
-          events.push({
-            lineNumber: index + 1,
-            timestamp,
-            iocs,
-            line: line.trim(),
-            severity: this.calculateSeverity(iocs)
-          });
+    for (const [lineNumber, matches] of this.lineIndex) {
+      const line = this.lines[lineNumber - 1];
+      const iocs = this.uniqueLineIOCs(matches);
+      for (const timestamp of this.extractTimestamps(line)) {
+        events.push({
+          lineNumber, timestamp: timestamp.raw, key: timestamp.key, hasYear: timestamp.hasYear,
+          iocs, line: line.trim(), severity: this.calculateSeverity(iocs)
         });
       }
-    });
-    
-    // 時系列でソート
-    events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    }
+    events.sort((a, b) => a.key - b.key);
     
     return this.groupEventsByTime(events);
   }
@@ -82,172 +71,61 @@ export class AnalysisEngine {
   }
 
   // 共起関係の分析
-  analyzeCooccurrence(allIOCs) {
+  analyzeCooccurrence() {
     const correlations = [];
-    const lines = this.originalText.split(/\r?\n/);
-    
-    lines.forEach((line, lineIndex) => {
-      const lineIOCs = allIOCs.filter(ioc => 
-        line.toLowerCase().includes(ioc.value.toLowerCase())
-      );
-      
-      if (lineIOCs.length >= 2) {
-        for (let i = 0; i < lineIOCs.length; i++) {
-          for (let j = i + 1; j < lineIOCs.length; j++) {
-            correlations.push({
-              type: 'cooccurrence',
-              ioc1: lineIOCs[i],
-              ioc2: lineIOCs[j],
-              lineNumber: lineIndex + 1,
-              strength: this.calculateCorrelationStrength(lineIOCs[i], lineIOCs[j]),
-              context: line.trim()
-            });
-          }
+    const append = item => {
+      if (correlations.length >= this.correlationLimit) {
+        this.truncated = true;
+        return false;
+      }
+      correlations.push(item);
+      return true;
+    };
+    for (const [lineNumber, matches] of this.lineIndex) {
+      const iocs = this.uniqueLineIOCs(matches);
+      const context = this.lines[lineNumber - 1].trim();
+      for (let i = 0; i < iocs.length; i++) {
+        for (let j = i + 1; j < iocs.length; j++) {
+          const [ioc1, ioc2] = [iocs[i], iocs[j]];
+          if (!append({
+            type: 'cooccurrence', ioc1, ioc2, lineNumber, context,
+            strength: this.calculateCorrelationStrength(ioc1, ioc2)
+          })) return correlations;
+          const relation = this.proximityRelation(ioc1, ioc2);
+          if (relation && !append({ ...relation, lineNumber, context })) return correlations;
         }
       }
-    });
-    
+    }
     return correlations;
   }
 
-  // ドメインとIPの関連性分析
-  analyzeDomainIPRelations() {
-    const correlations = [];
-    const domains = this.stats.domain?.items || [];
-    const ipv4s = this.stats.ipv4?.items || [];
-    const ipv6s = this.stats.ipv6?.items || [];
-    const allIPs = [...ipv4s, ...ipv6s];
-    
-    domains.forEach(domain => {
-      allIPs.forEach(ip => {
-        const proximity = this.findProximity(domain, ip);
-        if (proximity.found) {
-          correlations.push({
-            type: 'domain_ip_relation',
-            domain,
-            ip,
-            proximity: proximity.distance,
-            lineNumber: proximity.lineNumber,
-            strength: proximity.distance < 50 ? 'high' : 'medium',
-            context: proximity.context
-          });
-        }
-      });
-    });
-    
-    return correlations;
+  uniqueLineIOCs(matches) {
+    return [...new Map(matches.map(match => [match.type + '\0' + match.value, match])).values()];
   }
 
-  // ファイルパスとハッシュの関連性分析
-  analyzeFileHashRelations() {
-    const correlations = [];
-    const filePaths = this.stats.filePath?.items || [];
-    const hashes = this.stats.hash?.items || [];
-    
-    filePaths.forEach(filePath => {
-      hashes.forEach(hash => {
-        const proximity = this.findProximity(filePath, hash);
-        if (proximity.found) {
-          correlations.push({
-            type: 'file_hash_relation',
-            filePath,
-            hash,
-            proximity: proximity.distance,
-            lineNumber: proximity.lineNumber,
-            strength: proximity.distance < 100 ? 'high' : 'medium',
-            context: proximity.context
-          });
-        }
-      });
-    });
-    
-    return correlations;
-  }
-
-  // 脅威インテリジェンス関連性分析
-  analyzeThreatIntelRelations() {
-    const correlations = [];
-    const cves = this.stats.cve?.items || [];
-    const mitres = this.stats.mitre?.items || [];
-    
-    cves.forEach(cve => {
-      mitres.forEach(mitre => {
-        const proximity = this.findProximity(cve, mitre);
-        if (proximity.found) {
-          correlations.push({
-            type: 'threat_intel_relation',
-            cve,
-            mitre,
-            proximity: proximity.distance,
-            lineNumber: proximity.lineNumber,
-            strength: 'high',
-            context: proximity.context
-          });
-        }
-      });
-    });
-    
-    return correlations;
+  // Nearness uses scanner positions, not repeated text searches.
+  proximityRelation(first, second) {
+    const items = new Map([[first.type, first.value], [second.type, second.value]]);
+    const proximity = Math.abs(first.start - second.start);
+    const domain = items.get('domain');
+    const ip = items.get('ipv4') || items.get('ipv6');
+    if (domain && ip) {
+      return { type: 'domain_ip_relation', domain, ip, proximity, strength: proximity < 50 ? 'high' : 'medium' };
+    }
+    const filePath = items.get('filePath');
+    const hash = items.get('hash');
+    if (filePath && hash) {
+      return { type: 'file_hash_relation', filePath, hash, proximity, strength: proximity < 100 ? 'high' : 'medium' };
+    }
+    if (items.has('cve') && items.has('mitre')) {
+      return { type: 'threat_intel_relation', cve: items.get('cve'), mitre: items.get('mitre'), proximity, strength: 'high' };
+    }
+    return null;
   }
 
   // タイムスタンプ抽出
   extractTimestamps(line) {
-    const patterns = [
-      // ISO 8601: 2024-01-15T10:30:45
-      /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})?/g,
-      // Apache log: [15/Jan/2024:10:30:45 +0000]
-      /\[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}\s+[+-]\d{4})\]/g,
-      // Syslog: Jan 15 10:30:45
-      /\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}/g,
-      // Simple: 2024-01-15 10:30:45
-      /\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g
-    ];
-    
-    const timestamps = [];
-    patterns.forEach(pattern => {
-      const matches = line.matchAll(pattern);
-      for (const match of matches) {
-        timestamps.push(match[0]);
-      }
-    });
-    
-    return timestamps;
-  }
-
-  // 行からIOC抽出
-  extractIOCsFromLine(line) {
-    const iocs = [];
-    const allIOCs = this.getAllIOCs();
-    
-    allIOCs.forEach(ioc => {
-      if (line.toLowerCase().includes(ioc.value.toLowerCase())) {
-        iocs.push(ioc);
-      }
-    });
-    
-    return iocs;
-  }
-
-  // 近接性を検索
-  findProximity(item1, item2) {
-    const lines = this.originalText.split(/\r?\n/);
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const pos1 = line.toLowerCase().indexOf(item1.toLowerCase());
-      const pos2 = line.toLowerCase().indexOf(item2.toLowerCase());
-      
-      if (pos1 !== -1 && pos2 !== -1) {
-        return {
-          found: true,
-          distance: Math.abs(pos1 - pos2),
-          lineNumber: i + 1,
-          context: line.trim()
-        };
-      }
-    }
-    
-    return { found: false };
+    return extractTimestamps(line);
   }
 
   // 相関強度の計算
@@ -302,9 +180,11 @@ export class AnalysisEngine {
     let currentGroup = null;
     
     events.forEach(event => {
-      if (!currentGroup || this.getTimeDiff(currentGroup.startTime, event.timestamp) > 300000) { // 5分以上の間隔
+      if (!currentGroup || this.getTimeDiff(currentGroup.key, event.key) > 300000) { // 5分以上の間隔
         currentGroup = {
           startTime: event.timestamp,
+          key: event.key,
+          hasYear: event.hasYear,
           events: [event],
           severity: event.severity
         };
@@ -352,7 +232,7 @@ export class AnalysisEngine {
     
     // パーセンテージを計算
     Object.keys(distribution).forEach(type => {
-      distribution[type].percentage = ((distribution[type].count / total) * 100).toFixed(1);
+      distribution[type].percentage = ((distribution[type].count / (total || 1)) * 100).toFixed(1);
     });
     
     return distribution;
@@ -362,8 +242,7 @@ export class AnalysisEngine {
   analyzePatterns() {
     const patterns = {
       repeatedIOCs: this.findRepeatedIOCs(),
-      suspiciousPatterns: this.findSuspiciousPatterns(),
-      geographicDistribution: this.analyzeGeographic()
+      suspiciousPatterns: this.findSuspiciousPatterns()
     };
     
     return patterns;
@@ -416,7 +295,7 @@ export class AnalysisEngine {
   }
 
   getTimeDiff(time1, time2) {
-    return Math.abs(new Date(time1) - new Date(time2));
+    return Math.abs(time1 - time2);
   }
 
   getSeverityLevel(severity) {
@@ -428,7 +307,7 @@ export class AnalysisEngine {
     const repeated = [];
     Object.entries(this.stats).forEach(([type, data]) => {
       data.items.forEach(ioc => {
-        const count = (this.originalText.match(new RegExp(this.escapeRegex(ioc), 'gi')) || []).length;
+        const count = this.counts.get(type + '\0' + ioc) || 0;
         if (count >= 3) {
           repeated.push({ type, ioc, count });
         }
@@ -451,19 +330,5 @@ export class AnalysisEngine {
     return patterns;
   }
 
-  analyzeGeographic() {
-    // 簡易的な地理的分析（実際にはGeoIPデータベースが必要）
-    const privateIPs = (this.stats.ipv4?.items || []).filter(ip => 
-      ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')
-    );
-    
-    return {
-      privateIPs: privateIPs.length,
-      publicIPs: (this.stats.ipv4?.total || 0) - privateIPs.length
-    };
-  }
 
-  escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
 }

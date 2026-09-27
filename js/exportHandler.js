@@ -1,3 +1,11 @@
+import { defang, urlHost } from './scanner.js';
+
+export function csvCell(value) {
+  let text = String(value);
+  if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
 export class ExportHandler {
   constructor() {
     this.currentStats = null;
@@ -7,7 +15,8 @@ export class ExportHandler {
     this.currentStats = stats;
   }
 
-  export(format) {
+  export(format, useDefang = false) {
+    this.useDefang = useDefang;
     if (!this.currentStats) {
       throw new Error('エクスポートするデータがありません');
     }
@@ -35,7 +44,9 @@ export class ExportHandler {
       data.iocs[type] = {
         total: info.total,
         unique: info.unique,
-        items: info.items
+        items: info.items.map(value => type === 'url'
+          ? { value: this.outputValue(value, type), host: this.outputValue(urlHost(value), 'domain') }
+          : this.outputValue(value, type))
       };
     }
 
@@ -57,19 +68,15 @@ export class ExportHandler {
       } else {
         info.items.forEach((item, index) => {
           if (index === 0) {
-            rows.push([type, item, info.total, info.unique]);
+            rows.push([type, this.outputValue(item, type), info.total, info.unique]);
           } else {
-            rows.push(['', item, '', '']);
+            rows.push(['', this.outputValue(item, type), '', '']);
           }
         });
       }
     }
 
-    const csv = rows.map(row => 
-      row.map(cell => 
-        typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
-      ).join(',')
-    ).join('\n');
+    const csv = rows.map(row => row.map(csvCell).join(',')).join('\r\n');
 
     return {
       content: '\uFEFF' + csv, // BOM付きでExcelでの文字化けを防ぐ
@@ -80,7 +87,7 @@ export class ExportHandler {
 
   exportTXT() {
     let text = `IOC抽出結果\n`;
-    text += `抽出日時: ${new Date().toLocaleString('ja-JP')}\n`;
+    text += `抽出日時: ${new Date().toISOString()}\n`;
     text += `${'='.repeat(50)}\n\n`;
 
     const summary = this.getSummary();
@@ -97,7 +104,7 @@ export class ExportHandler {
       if (info.items.length > 0) {
         text += `  検出項目:\n`;
         info.items.forEach(item => {
-          text += `    - ${item}\n`;
+          text += `    - ${this.outputValue(item, type)}\n`;
         });
       }
       text += '\n';
@@ -108,6 +115,10 @@ export class ExportHandler {
       filename: `ioc_results_${this.getTimestamp()}.txt`,
       mimeType: 'text/plain;charset=utf-8'
     };
+  }
+
+  outputValue(value, type) {
+    return this.useDefang ? defang(value, type) : value;
   }
 
   getSummary() {
@@ -127,9 +138,9 @@ export class ExportHandler {
     return now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
   }
 
-  download(format) {
+  download(format, useDefang = false) {
     try {
-      const exportData = this.export(format);
+      const exportData = this.export(format, useDefang);
       const blob = new Blob([exportData.content], { type: exportData.mimeType });
       const url = URL.createObjectURL(blob);
       
@@ -142,7 +153,7 @@ export class ExportHandler {
       
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('ダウンロードエラー:', error);
+      console.error('ダウンロードに失敗しました。');
       throw error;
     }
   }

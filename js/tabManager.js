@@ -10,19 +10,35 @@ export class TabManager {
     // タブボタンのイベントリスナー
     document.querySelectorAll('.tab-button').forEach(button => {
       button.addEventListener('click', (e) => {
-        const tabName = e.target.dataset.tab;
+        const tabName = e.currentTarget.dataset.tab;
         this.switchTab(tabName);
       });
     });
+    const buttons = [...document.querySelectorAll('.tab-button')];
+    buttons.forEach((button, index) => button.addEventListener('keydown', event => {
+      const targets = {
+        ArrowRight: (index + 1) % buttons.length,
+        ArrowLeft: (index - 1 + buttons.length) % buttons.length,
+        Home: 0, End: buttons.length - 1
+      };
+      if (!(event.key in targets)) return;
+      event.preventDefault();
+      const next = buttons[targets[event.key]];
+      this.switchTab(next.dataset.tab);
+      next.focus();
+    }));
   }
 
   switchTab(tabName) {
     // 以前のアクティブタブを非アクティブ化
     document.querySelectorAll('.tab-button').forEach(btn => {
       btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
+      btn.tabIndex = -1;
     });
     document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.remove('active');
+      panel.hidden = true;
     });
 
     // 新しいタブをアクティブ化
@@ -31,20 +47,23 @@ export class TabManager {
     
     if (button && panel) {
       button.classList.add('active');
+      button.setAttribute('aria-selected', 'true');
+      button.tabIndex = 0;
       panel.classList.add('active');
+      panel.hidden = false;
       this.activeTab = tabName;
     }
   }
 
   showResults() {
-    document.getElementById('resultsSection').style.display = 'block';
+    document.getElementById('resultsSection').hidden = false;
   }
 
   hideResults() {
-    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('resultsSection').hidden = true;
   }
 
-  updateAnalysisTab(correlations) {
+  updateAnalysisTab(correlations, truncated = false) {
     const analysisArea = document.getElementById('analysisArea');
     
     if (correlations.length === 0) {
@@ -53,6 +72,7 @@ export class TabManager {
     }
 
     const html = `
+      ${truncated ? '<p class="limit-warning">上限に達したため一部のみ表示しています。</p>' : ''}
       <div class="analysis-summary">
         <div class="stat-card">
           <h4>検出された関連性</h4>
@@ -177,7 +197,7 @@ export class TabManager {
 
   renderTimelineGroup(group) {
     const severityClass = group.severity;
-    const startTime = new Date(group.startTime).toLocaleString('ja-JP');
+    const startTime = group.startTime;
 
     return `
       <div class="timeline-group ${severityClass}">

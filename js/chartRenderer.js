@@ -41,11 +41,11 @@ export class ChartRenderer {
     // データが空の場合は非表示
     const hasData = Object.values(stats).some(s => s.total > 0);
     if (!hasData) {
-      this.chartContainer.style.display = 'none';
+      this.chartContainer.hidden = true;
       return;
     }
 
-    this.chartContainer.style.display = 'block';
+    this.chartContainer.hidden = false;
     
     // ダークモードの判定
     const isDarkMode = document.body.classList.contains('dark-mode');
@@ -62,8 +62,8 @@ export class ChartRenderer {
       }));
     
     // キャンバスのサイズを動的に調整（横棒グラフなので高さを調整）
-    const containerWidth = this.chartContainer.clientWidth;
-    this.canvas.width = Math.min(containerWidth - 20, 700);
+    const containerWidth = this.chartContainer.clientWidth || document.getElementById('resultsSection').clientWidth;
+    this.canvas.width = Math.max(200, Math.min(containerWidth - 20, 700));
     this.canvas.height = Math.max(350, data.length * 40 + 120); // 凡例とマージンを考慮して高さを調整
     
     // キャンバスをクリア

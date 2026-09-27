@@ -1,3 +1,5 @@
+import { escapeHtml } from './config.js';
+
 export class UIController {
   constructor() {
     this.elements = {
@@ -41,11 +43,14 @@ export class UIController {
   }
 
   displayResults(stats, highlighted) {
-    this.elements.outputArea.innerHTML = `<pre>${highlighted}</pre>`;
+    const pre = document.createElement('pre');
+    pre.innerHTML = highlighted; // Only scanner-generated, escaped markup; preserve a leading newline.
+    this.elements.outputArea.replaceChildren(pre);
   }
 
   displayStats(statsHTML) {
     this.elements.statsArea.innerHTML = statsHTML;
+    document.getElementById('analysisStatus').textContent = '解析が完了しました。';
   }
 
   populateSampleSelector(samples) {
@@ -62,7 +67,7 @@ export class UIController {
   }
 
   toggleTestLoader(show) {
-    this.elements.testLoader.style.display = show ? 'block' : 'none';
+    this.elements.testLoader.hidden = !show;
   }
 
   addDragOverClass() {
@@ -105,19 +110,19 @@ export class UIController {
   }
 
   showExportSection() {
-    this.elements.exportSection.style.display = 'block';
+    this.elements.exportSection.hidden = false;
   }
 
   hideExportSection() {
-    this.elements.exportSection.style.display = 'none';
+    this.elements.exportSection.hidden = true;
   }
 
   showResultsSection() {
-    this.elements.resultsSection.style.display = 'block';
+    this.elements.resultsSection.hidden = false;
   }
 
   hideResultsSection() {
-    this.elements.resultsSection.style.display = 'none';
+    this.elements.resultsSection.hidden = true;
   }
 
   bindAddWhitelistHandler(handler) {
@@ -171,8 +176,6 @@ export class UIController {
   }
 
   escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return escapeHtml(str);
   }
 }

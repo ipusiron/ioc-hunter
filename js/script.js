@@ -74,18 +74,15 @@ class IOCHunterApp {
         return;
       }
       
-      console.log('Starting analysis...'); // デバッグ用
-      
-      const { stats, highlighted } = this.analyzer.analyze(inputText);
+      const { stats, highlighted, matches } = this.analyzer.analyze(inputText);
       const statsHTML = this.analyzer.generateStatsHTML(stats);
-      
-      console.log('Analysis completed:', stats); // デバッグ用
       
       // 基本的な統計とハイライト表示
       this.ui.displayStats(statsHTML);
       this.ui.displayResults(stats, highlighted);
       
-      // グラフを描画
+      // 可視化してからキャンバスの幅を取得する
+      this.ui.showResultsSection();
       this.chartRenderer.render(stats);
       
       // エクスポート用にstatsを保存し、セクションを表示
@@ -93,28 +90,27 @@ class IOCHunterApp {
       this.ui.showExportSection();
       this.ui.showResultsSection();
       
-      console.log('Basic display completed'); // デバッグ用
-      
       // 高度な分析を実行（表示の後に実行してエラーを防ぐ）
       try {
-        this.performAdvancedAnalysis(inputText, stats);
-        console.log('Advanced analysis completed'); // デバッグ用
+        this.performAdvancedAnalysis(inputText, stats, matches);
+
       } catch (error) {
-        console.error('Advanced analysis error:', error);
+        console.error('Advanced analysis failed.');
+        this.ui.showError('関連性分析に失敗しました。');
       }
     } catch (error) {
-      console.error('Analysis error:', error);
+      console.error('Analysis failed.');
       this.ui.showError(`分析中にエラーが発生しました: ${error.message}`);
     }
   }
 
-  performAdvancedAnalysis(inputText, stats) {
+  performAdvancedAnalysis(inputText, stats, matches) {
     // 分析エンジンにデータを設定
-    this.analysisEngine.setData(inputText, stats);
+    this.analysisEngine.setData(inputText, stats, matches);
     
     // 関連性分析
     const correlations = this.analysisEngine.analyzeCorrelations();
-    this.tabManager.updateAnalysisTab(correlations);
+    this.tabManager.updateAnalysisTab(correlations, this.analysisEngine.truncated);
     
     // タイムライン分析
     const timelineGroups = this.analysisEngine.analyzeTimeline();
@@ -178,7 +174,7 @@ class IOCHunterApp {
 
     try {
       const content = await this.fileHandler.loadSampleFile(filename);
-      this.ui.setInputText(content.trim());
+      this.ui.setInputText(content);
     } catch (error) {
       this.ui.showError(error.message);
     }
@@ -189,14 +185,14 @@ class IOCHunterApp {
       const samples = await this.fileHandler.loadSampleList();
       this.ui.populateSampleSelector(samples);
     } catch (error) {
-      console.error('サンプルリストの読み込みに失敗:', error);
+      console.error('サンプルリストの読み込みに失敗しました。');
     }
   }
 
   handleDownload() {
     try {
       const format = this.ui.getExportFormat();
-      this.exportHandler.download(format);
+      this.exportHandler.download(format, document.getElementById('defangOutput').checked);
     } catch (error) {
       this.ui.showError(error.message);
     }
@@ -208,7 +204,7 @@ class IOCHunterApp {
       if (this.whitelistManager.add(ioc)) {
         this.ui.clearWhitelistInput();
       } else {
-        this.ui.showError('無効なIOCまたは既に追加済みです');
+        this.ui.showError('無効なIOCまたはすでに追加済みです');
       }
     }
   }

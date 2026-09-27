@@ -25,8 +25,16 @@ export class HelpModal {
     
     // ESCキーでモーダルを閉じる
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isVisible()) {
-        this.hide();
+      if (!this.isVisible()) return;
+      if (e.key === 'Escape') this.hide();
+      if (e.key === 'Tab') {
+        const items = [...this.modal.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')];
+        const first = items[0];
+        const last = items.at(-1);
+        if ((e.shiftKey && document.activeElement === first) || (!e.shiftKey && document.activeElement === last)) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        }
       }
     });
     
@@ -35,19 +43,24 @@ export class HelpModal {
   }
 
   show() {
-    this.modal.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // スクロールを無効化
+    this.previousFocus = document.activeElement;
+    this.modal.hidden = false;
+    this.inertStates = [...document.body.children].filter(item => item !== this.modal)
+      .map(item => [item, item.inert]);
+    this.inertStates.forEach(([item]) => { item.inert = true; });
+    document.body.classList.add('modal-open');
     this.closeButton.focus(); // フォーカスを移動
   }
 
   hide() {
-    this.modal.style.display = 'none';
-    document.body.style.overflow = ''; // スクロールを復元
-    this.helpButton.focus(); // フォーカスを戻す
+    this.modal.hidden = true;
+    this.inertStates?.forEach(([item, state]) => { item.inert = state; });
+    document.body.classList.remove('modal-open');
+    (this.previousFocus || this.helpButton).focus();
   }
 
   isVisible() {
-    return this.modal.style.display === 'block';
+    return !this.modal.hidden;
   }
 
   generateHelpContent() {
@@ -78,9 +91,9 @@ export class HelpModal {
           <div class="ioc-type-group">
             <h4>ファイル・システム関連</h4>
             <ul>
-              <li><span class="ioc-sample filePath">ファイルパス</span> - C:\\\\Windows\\\\System32</li>
-              <li><span class="ioc-sample registryKey">レジストリキー</span> - HKLM\\\\Software</li>
-              <li><span class="ioc-sample hash">ハッシュ値</span> - MD5/SHA1/SHA256</li>
+              <li><span class="ioc-sample filePath">ファイルパス</span> - C:\\Windows\\System32</li>
+              <li><span class="ioc-sample registryKey">レジストリキー</span> - HKLM\\Software</li>
+              <li><span class="ioc-sample hash">ハッシュ値</span> - MD5/SHA1/SHA256/SHA512</li>
             </ul>
           </div>
           <div class="ioc-type-group">
@@ -88,7 +101,7 @@ export class HelpModal {
             <ul>
               <li><span class="ioc-sample cve">CVE番号</span> - CVE-2021-44228</li>
               <li><span class="ioc-sample mitre">MITRE ATT&CK</span> - T1566.001</li>
-              <li><span class="ioc-sample bitcoin">Bitcoin</span> - 1A1zP1eP5QGefi2DMPTf...</li>
+              <li><span class="ioc-sample bitcoin">Bitcoin</span> - 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</li>
               <li><span class="ioc-sample flag">CTFフラグ</span> - flag{example_flag}</li>
             </ul>
           </div>
@@ -102,7 +115,7 @@ export class HelpModal {
           <li><strong>追加</strong>: テキストボックスに入力して「追加」ボタンまたはEnterキー</li>
           <li><strong>削除</strong>: 各項目の×ボタンをクリック</li>
           <li><strong>無効化</strong>: チェックボックスでON/OFF切り替え</li>
-          <li><strong>自動保存</strong>: 設定は自動的にブラウザに保存されます</li>
+          <li><strong>自動保存</strong>: 設定は自動的にブラウザーに保存されます</li>
         </ul>
       </div>
 
@@ -118,6 +131,8 @@ export class HelpModal {
 
       <div class="help-section">
         <h3>📥 エクスポート機能</h3>
+        <p>[.]・(.)・{.}、[@]・(@)・[at]、hxxp(s)、[://]・[:]//のdefang表記を検出します。
+        画面には原文を表示し、正規形で集計します。「defangして出力」でネットワークIOCを無害化表記に戻せます。</p>
         <p>解析結果を以下の形式でダウンロードできます：</p>
         <ul>
           <li><strong>JSON形式</strong>: プログラムで処理しやすい構造化データ</li>
@@ -148,7 +163,7 @@ export class HelpModal {
         <h3>⚠️ 注意事項</h3>
         <ul>
           <li>ファイルサイズは最大20MBまで</li>
-          <li>全ての処理はブラウザ内で実行（データは外部送信されません）</li>
+          <li>すべての処理はブラウザー内で実行（データは外部送信されません）</li>
           <li>正規表現による検出のため、一部誤検出の可能性があります</li>
         </ul>
       </div>

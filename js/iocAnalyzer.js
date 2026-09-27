@@ -1,8 +1,8 @@
-import { CONFIG, escapeHtml, escapeHtmlMultiline } from './config.js';
+import { scan, statsFromMatches, highlightMatches } from './scanner.js';
 
 export class IOCAnalyzer {
   constructor() {
-    this.patterns = CONFIG.PATTERNS;
+    this.matches = [];
     this.whitelistManager = null;
   }
 
@@ -11,58 +11,24 @@ export class IOCAnalyzer {
   }
 
   analyze(text) {
-    const stats = this.extractStats(text);
-    const highlighted = this.highlightIOCs(text);
-    
+    const allMatches = scan(text);
+    this.matches = this.whitelistManager?.isEnabled()
+      ? allMatches.filter(match => !this.whitelistManager.contains(match.value))
+      : allMatches;
+
     return {
-      stats,
-      highlighted
+      matches: this.matches,
+      stats: this.extractStats(this.matches, allMatches),
+      highlighted: this.highlightIOCs(text, this.matches)
     };
   }
 
-  extractStats(text) {
-    const results = {};
-    
-    for (const [type, regex] of Object.entries(this.patterns)) {
-      const allMatches = [...text.matchAll(regex)].map(m => m[0]);
-      
-      // ホワイトリストフィルタリング
-      const filteredMatches = this.whitelistManager && this.whitelistManager.isEnabled()
-        ? allMatches.filter(match => !this.whitelistManager.contains(match))
-        : allMatches;
-      
-      const uniqueMatches = [...new Set(filteredMatches)];
-      
-      results[type] = {
-        total: filteredMatches.length,
-        unique: uniqueMatches.length,
-        items: uniqueMatches,
-        filtered: allMatches.length - filteredMatches.length // フィルタされた数
-      };
-    }
-    
-    return results;
+  extractStats(matches, allMatches = matches) {
+    return statsFromMatches(matches, allMatches);
   }
 
-  highlightIOCs(text) {
-    // 【セキュリティ】まずテキスト全体をエスケープしてXSSを防ぐ
-    let highlighted = escapeHtmlMultiline(text);
-
-    // エスケープ後のテキストでIOCを検出してハイライト
-    // IOC値は既にエスケープ済みなので安全にspanタグで囲める
-    for (const [type, regex] of Object.entries(this.patterns)) {
-      highlighted = highlighted.replace(regex, (match) => {
-        // ホワイトリストに含まれる場合はハイライトしない
-        if (this.whitelistManager && this.whitelistManager.isEnabled() &&
-            this.whitelistManager.contains(match)) {
-          return match;
-        }
-        // matchは既にエスケープ済みなので、そのままspanで囲む
-        return `<span class="ioc ${type}">${match}</span>`;
-      });
-    }
-
-    return highlighted;
+  highlightIOCs(text, matches) {
+    return highlightMatches(text, matches);
   }
 
   generateStatsHTML(stats) {

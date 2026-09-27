@@ -43,6 +43,7 @@ export class FileHandler {
   }
 
   async loadSampleFile(filename) {
+    if (!/^[a-zA-Z0-9_-]+\.(?:txt|log)$/.test(filename)) throw new Error('無効なサンプル名です。');
     const response = await fetch(`samples/${filename}`);
     
     if (!response.ok) {
@@ -54,6 +55,7 @@ export class FileHandler {
 
   async loadSampleList() {
     const response = await fetch('samples/list.txt');
+    if (!response.ok) throw new Error('サンプル一覧を読み込めませんでした。');
     const text = await response.text();
     
     return text.split(/\r?\n/)
