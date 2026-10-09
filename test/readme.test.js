@@ -58,3 +58,22 @@ test('All three relative README screenshots exist', () => {
   assert.deepEqual(local, ['assets/screenshot.png', 'assets/screenshot3.png', 'assets/screenshot4.png']);
   for (const path of local) assert.ok(existsSync(new URL(path, root)), path);
 });
+
+test('Use-case examples unique to this tool match scan() and defang() in both READMEs', async () => {
+  const { defang } = await import('../js/scanner.js');
+  const en = readFileSync(new URL('README.en.md', root), 'utf8');
+  const code = (text, start) => text.slice(text.indexOf('`', text.indexOf(start)) + 1).split('`')[0];
+  const found = text => scan(text).map(m => m.type + ':' + m.value);
+  const path = String.raw`C:\Users\taro\Desktop\debug.log`;
+  const leak = ['ipv4:10.0.5.23', 'filePath:' + path, 'email:admin@corp.example.jp'];
+  assert.deepEqual(found(code(readme, '公開前の原稿から')), leak);
+  assert.deepEqual(found(code(en, 'Finding internal details')), leak);
+  const refs = ['cve:CVE-2021-44228', 'mitre:T1190', 'cve:CVE-2021-45046'];
+  assert.deepEqual(found(code(readme, 'CVE番号とATT&CKの技術IDを一覧')), refs);
+  assert.deepEqual(found(code(en, 'Listing the CVE numbers')), refs);
+  const defanged = 'hxxps://login-check[.]example[.]com/verify';
+  const [hit] = scan(defanged);
+  assert.deepEqual([hit.type, hit.value], ['url', 'https://login-check.example.com/verify']);
+  assert.equal(defang(hit.value, hit.type), defanged);
+  for (const text of [readme, en]) assert.ok(text.includes('`' + defanged + '`') && text.includes('`' + hit.value + '`'));
+});

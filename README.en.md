@@ -93,6 +93,12 @@ builds a timeline and reports detailed statistics, so it goes further than a pla
 
 ## 🎯 Use cases
 
+### Ways of using this tool in particular
+
+- Finding internal details in a draft before publishing it (checking a blog post, a report or a question before posting): paste `The test machine ran at 10.0.5.23, the log is at C:\Users\taro\Desktop\debug.log and questions go to admin@corp.example.jp.` and three items are colored: an IPv4 address, a file path and an email address. Details the writer easily misses, such as the Windows user name (taro) inside the path, come into view. Values that are fine to publish can go on the whitelist and stop being counted (names of people and companies are not detected)
+- Listing the CVE numbers and ATT&CK technique IDs in a manuscript (writing and making teaching material): `Log4Shell (CVE-2021-44228) is an example of T1190, and the gap left by the 2.15.0 fix became CVE-2021-45046.` gives two CVEs and one ATT&CK technique ID. Paste it chapter by chapter for a first draft of an index or of a table for checking references (only the shape of the number is checked, so numbers that do not exist and typos are not told apart)
+- Counting defanged IOCs and defanging them again when sharing (warnings inside an organization): warning articles and social media posts write URLs in a defanged form such as `hxxps://login-check[.]example[.]com/verify`. Pasted, it is counted as `https://login-check.example.com/verify`, so the same URL written in different ways becomes one item. When sharing inside your organization, check "Defang the output" to write a form that nobody clicks by mistake in chat or email
+
 ### In a CTF
 
 IOC Hunter is most useful on forensics and log-analysis challenges.
