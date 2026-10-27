@@ -16,7 +16,7 @@ export function contrast(a, b) {
 }
 
 test('All 12 IOC text/background pairs pass in both themes', () => {
-  const rules = [...css.matchAll(/^(body\.dark-mode )?\.ioc\.(\w+)\s*\{\s*background: (#[\da-f]+); color: (#[\da-f]+);/gm)];
+  const rules = [...css.matchAll(/^(html\.dark-mode )?\.ioc\.(\w+)\s*\{\s*background: (#[\da-f]+); color: (#[\da-f]+);/gm)];
   assert.equal(rules.length, 24);
   for (const [, theme, type, background, color] of rules) {
     assert.ok(contrast(color, background) >= 4.5, (theme || 'light ') + type);

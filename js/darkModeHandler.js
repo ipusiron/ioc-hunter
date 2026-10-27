@@ -2,19 +2,13 @@ export class DarkModeHandler {
   constructor() {
     this.STORAGE_KEY = 'ioc-hunter-dark-mode';
     this.toggleButton = document.getElementById('darkModeToggle');
-    this.body = document.body;
+    // テーマのクラスは <html> に付ける（<head> の theme-init.js が最初の描画の前に付ける）
+    this.root = document.documentElement;
     this.onToggleCallback = null;
   }
 
   init() {
-    // 保存された設定またはシステム設定を適用
-    const savedMode = this.getSavedMode();
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldUseDarkMode = savedMode !== null ? savedMode : systemPrefersDark;
-    
-    if (shouldUseDarkMode) {
-      this.enableDarkMode();
-    }
+    // 初回のテーマは js/theme-init.js が決める。アイコンは CSS がクラスに合わせて切り替える
 
     // ボタンクリックイベント
     this.toggleButton.addEventListener('click', () => this.toggle());
@@ -32,7 +26,7 @@ export class DarkModeHandler {
   }
 
   toggle() {
-    if (this.body.classList.contains('dark-mode')) {
+    if (this.root.classList.contains('dark-mode')) {
       this.disableDarkMode();
       this.saveMode(false);
     } else {
@@ -51,11 +45,11 @@ export class DarkModeHandler {
   }
 
   enableDarkMode() {
-    this.body.classList.add('dark-mode');
+    this.root.classList.add('dark-mode');
   }
 
   disableDarkMode() {
-    this.body.classList.remove('dark-mode');
+    this.root.classList.remove('dark-mode');
   }
 
   // ストレージが使えない環境では覚えないだけにして、初期化を止めない

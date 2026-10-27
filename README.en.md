@@ -331,11 +331,12 @@ ioc-hunter/
 │   ├── scanner.js
 │   ├── script.js
 │   ├── tabManager.js
+│   ├── theme-init.js          # sets the theme before the first paint (loaded in <head>)
 │   ├── timeline.js
 │   ├── uiController.js
 │   └── whitelistManager.js
 ├── samples/                  # six logs and list.txt
-├── test/                     # patterns, display, timestamps, export, docs, contrast, i18n
+├── test/                     # patterns, display, timestamps, export, docs, contrast, i18n, theme
 ├── index.html
 ├── package.json
 ├── CLAUDE.md
