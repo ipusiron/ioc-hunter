@@ -334,11 +334,12 @@ ioc-hunter/
 │   ├── scanner.js
 │   ├── script.js
 │   ├── tabManager.js
+│   ├── theme-init.js          # 最初の描画の前にテーマを決める（<head>で読み込む）
 │   ├── timeline.js
 │   ├── uiController.js
 │   └── whitelistManager.js
 ├── samples/                  # 6本のログとlist.txt
-├── test/                     # パターン・表示・日時・出力・文書・配色・日英
+├── test/                     # パターン・表示・日時・出力・文書・配色・日英・テーマ
 ├── index.html
 ├── package.json
 ├── CLAUDE.md

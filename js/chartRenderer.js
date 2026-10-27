@@ -48,7 +48,7 @@ export class ChartRenderer {
     this.chartContainer.hidden = false;
     
     // ダークモードの判定
-    const isDarkMode = document.body.classList.contains('dark-mode');
+    const isDarkMode = document.documentElement.classList.contains('dark-mode');
     const colors = isDarkMode ? this.darkColors : this.colors;
     
     // データの準備（値が0より大きいもののみ表示）
